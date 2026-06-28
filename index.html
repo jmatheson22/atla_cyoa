@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Four Elements, One Soul — an Avatar CYOA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Spectral:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#ecdcb8; --paper-2:#e1ce9f;
+  --panel:#f4ecd6; --panel-2:#efe4c9;
+  --ink:#2b2016; --ink-soft:#6e5d44;
+  --line:#cbb588; --line-soft:#dccaa1;
+  --air:#e8912d;   --air-d:#b1611a;
+  --water:#2f86b8; --water-d:#1c5a85;
+  --earth:#6f9a3f; --earth-d:#4c6c27;
+  --fire:#c5402a;  --fire-d:#8c2718;
+  --accent:#a07c33; --accent-deep:#7d5d22;
+  --accent-soft:rgba(160,124,51,.16); --glow:rgba(160,124,51,.32);
+  --bad:#b23a26;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Spectral',Georgia,serif;color:var(--ink);line-height:1.62;
+  background-color:var(--paper);
+  background-image:
+    var(--nationwash,none),
+    repeating-linear-gradient(94deg, rgba(120,92,48,.02) 0 3px, transparent 3px 6px),
+    radial-gradient(circle at 15% 8%, rgba(255,250,235,.6), transparent 45%),
+    linear-gradient(165deg, var(--paper), var(--paper-2));
+  background-attachment:fixed;padding:0 16px 80px;position:relative;
+  transition:background-color .8s ease;
+}
+body[data-nation="air"]{--nationwash:radial-gradient(120% 78% at 50% -14%, rgba(232,145,45,.20), transparent 60%)}
+body[data-nation="water"]{--nationwash:radial-gradient(120% 78% at 50% -14%, rgba(47,134,184,.22), transparent 60%)}
+body[data-nation="earth"]{--nationwash:radial-gradient(120% 78% at 50% -14%, rgba(111,154,63,.20), transparent 60%)}
+body[data-nation="fire"]{--nationwash:radial-gradient(120% 78% at 50% -14%, rgba(197,64,42,.20), transparent 60%)}
+
+.motes{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.mote{position:absolute;bottom:-6vh;border-radius:50%;opacity:0;will-change:transform,opacity}
+@keyframes floatUp{0%{transform:translateY(0) translateX(0);opacity:0}12%{opacity:.8}88%{opacity:.5}100%{transform:translateY(-118vh) translateX(28px);opacity:0}}
+@keyframes floatDown{0%{transform:translateY(-120vh) translateX(0);opacity:0}12%{opacity:.75}88%{opacity:.45}100%{transform:translateY(8vh) translateX(-26px);opacity:0}}
+
+.wrap{max-width:880px;margin:0 auto;position:relative;z-index:1}
+
+header{text-align:center;padding:48px 8px 16px;position:relative}
+.crest{width:94px;height:94px;margin:0 auto 8px;color:var(--accent);opacity:0;transform:scale(.5) rotate(-10deg);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.9,.3,1.5);filter:drop-shadow(0 5px 14px var(--glow))}
+body[data-nation] .crest{opacity:1;transform:none}
+.crest svg{width:100%;height:100%;display:block}
+.eyebrow{font-style:italic;color:var(--ink-soft);font-size:1rem;letter-spacing:.03em;margin-bottom:12px}
+h1{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:clamp(2.7rem,7.5vw,4.7rem);line-height:.92;letter-spacing:-.015em;color:var(--ink)}
+h1 .turn{display:block;color:var(--accent-deep);font-style:italic;transition:color .8s ease}
+.dek{font-style:italic;max-width:31em;margin:16px auto 0;color:var(--ink-soft);font-size:1.07rem}
+
+.tracker{position:sticky;top:12px;z-index:50;display:flex;align-items:center;gap:16px;justify-content:space-between;
+  background:linear-gradient(160deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:16px;
+  padding:11px 15px;margin:6px 0 22px;box-shadow:0 10px 30px rgba(60,44,20,.18)}
+.orb-wrap{display:flex;align-items:center;gap:14px}
+.orb{position:relative;width:58px;height:58px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:radial-gradient(circle at 34% 28%, rgba(255,255,255,.92), transparent 42%),
+            conic-gradient(from 210deg, var(--accent), var(--accent-deep), var(--accent));
+  box-shadow:0 0 0 4px var(--panel),0 0 22px var(--glow),inset 0 -7px 13px rgba(0,0,0,.25);
+  color:#fff;font-family:'Fraunces',serif;font-weight:600;font-size:1.6rem;text-shadow:0 1px 4px rgba(0,0,0,.45);transition:transform .25s ease}
+.orb .crest-mini{position:absolute;inset:0;display:grid;place-items:center;opacity:.24;color:#fff;pointer-events:none}
+.orb .crest-mini svg{width:72%;height:72%}
+.orb .num{position:relative;z-index:1}
+.orb.pulse{transform:scale(1.14)}
+.orb.over{background:radial-gradient(circle at 34% 28%, rgba(255,255,255,.85), transparent 42%),conic-gradient(from 210deg,#c5402a,#8c2718,#c5402a);box-shadow:0 0 0 4px var(--panel),0 0 24px rgba(197,64,42,.55),inset 0 -7px 13px rgba(0,0,0,.28)}
+.orb-meta{display:flex;flex-direction:column;line-height:1.18}
+.orb-meta .lab{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft)}
+.orb-meta .who{font-family:'Fraunces',serif;font-size:1.18rem;font-weight:600;color:var(--ink)}
+.reset{font-family:'Spectral';background:transparent;border:1px solid var(--line);color:var(--ink-soft);padding:8px 14px;border-radius:9px;cursor:pointer;font-size:.85rem;transition:all .2s ease}
+.reset:hover{border-color:var(--accent);color:var(--accent-deep);background:var(--accent-soft)}
+
+.tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:24px}
+.tab{font-family:'Spectral';font-size:.87rem;background:transparent;border:1px solid transparent;color:var(--ink-soft);padding:7px 13px;border-radius:20px;cursor:pointer;transition:all .2s ease}
+.tab:hover{color:var(--ink)}
+.tab.active{background:var(--accent);border-color:var(--accent-deep);color:#fff;font-weight:500;box-shadow:0 4px 12px var(--glow)}
+.tab .ord{font-family:'Fraunces',serif;font-weight:700;margin-right:5px;opacity:.75}
+
+.panel{display:none;animation:rise .45s ease}
+.panel.show{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+h2{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:2.15rem;color:var(--ink);margin-bottom:4px;letter-spacing:-.015em;line-height:1.05}
+.lead{font-style:italic;color:var(--ink-soft);margin-bottom:20px;max-width:42em;font-size:1.04rem}
+h3{font-family:'Fraunces',serif;font-weight:600;font-size:1.3rem;color:var(--accent-deep);margin:26px 0 12px;display:flex;align-items:center;gap:11px;transition:color .8s ease}
+h3::before{content:"";flex:none;width:22px;height:2px;border-radius:2px;background:var(--accent);transition:background .8s ease}
+
+.opt{position:relative;background:var(--panel);border:1px solid var(--line-soft);border-left:4px solid transparent;border-radius:11px;padding:14px 16px;margin-bottom:11px;cursor:pointer;transition:transform .18s ease,border-color .18s,box-shadow .18s,background .18s}
+.opt:hover{transform:translateX(4px);box-shadow:0 5px 16px rgba(60,44,20,.12)}
+.opt.sel{border-left-color:var(--accent);background:linear-gradient(95deg,var(--accent-soft),var(--panel) 72%);box-shadow:0 0 0 1.5px var(--accent) inset,0 5px 18px var(--glow)}
+.opt.dis{opacity:.4;cursor:not-allowed;filter:grayscale(.35)}
+.opt.dis:hover{transform:none;box-shadow:none}
+.opt-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.opt-name{font-family:'Fraunces',serif;font-weight:600;font-size:1.16rem}
+.cost{flex:none;font-family:'Spectral';font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:var(--accent-deep);border:1px solid var(--line);border-radius:20px;padding:2px 9px;white-space:nowrap;background:var(--panel-2)}
+.cost.free{color:var(--ink-soft)}
+.cost.refund{color:#3f7a4a;border-color:#9fbf9f;background:rgba(120,180,120,.12)}
+.opt-desc{color:var(--ink-soft);font-size:.97rem;margin-top:5px}
+.tag{font-size:.79rem;font-style:italic;color:var(--accent-deep);margin-top:6px}
+
+.nations{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:620px){.nations{grid-template-columns:1fr}}
+.nation{padding:0;overflow:hidden;border-left-width:1px;border-color:var(--line-soft)}
+.nation:hover{transform:translateY(-3px)}
+.nation .banner{display:flex;align-items:center;gap:13px;padding:14px 16px;color:#fff}
+.nation .banner .emblem{width:44px;height:44px;flex:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.32))}
+.nation .banner .emblem svg{width:100%;height:100%;display:block}
+.nation .banner .nm{font-family:'Fraunces',serif;font-weight:700;font-size:1.55rem;line-height:1}
+.nation .banner .el{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;opacity:.92;margin-top:3px}
+.nation .opt-desc{padding:13px 16px 16px;margin-top:0}
+.n-air .banner{background:linear-gradient(135deg,var(--air),var(--air-d))}
+.n-water .banner{background:linear-gradient(135deg,var(--water),var(--water-d))}
+.n-earth .banner{background:linear-gradient(135deg,var(--earth),var(--earth-d))}
+.n-fire .banner{background:linear-gradient(135deg,var(--fire),var(--fire-d))}
+.n-air.sel{box-shadow:0 0 0 2px var(--air) inset,0 8px 24px rgba(232,145,45,.42)}
+.n-water.sel{box-shadow:0 0 0 2px var(--water) inset,0 8px 24px rgba(47,134,184,.42)}
+.n-earth.sel{box-shadow:0 0 0 2px var(--earth) inset,0 8px 24px rgba(111,154,63,.42)}
+.n-fire.sel{box-shadow:0 0 0 2px var(--fire) inset,0 8px 24px rgba(197,64,42,.42)}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
+.field input,.field select{width:100%;font-family:'Spectral';font-size:1rem;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+.field input:focus,.field select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.choice-row{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:'Spectral';font-size:.92rem;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:7px 15px;cursor:pointer;color:var(--ink-soft);transition:all .18s ease}
+.chip:hover{color:var(--ink);border-color:var(--accent)}
+.chip.sel{background:var(--accent);border-color:var(--accent-deep);color:#fff;font-weight:500;box-shadow:0 3px 10px var(--glow)}
+.chip.dis{opacity:.4;cursor:not-allowed;filter:grayscale(.3)}
+
+.axis{background:var(--panel);border:1px solid var(--line-soft);border-radius:11px;padding:14px 16px;margin-bottom:11px}
+.axis-top{display:flex;justify-content:space-between;align-items:baseline}
+.axis-name{font-family:'Fraunces',serif;font-weight:600;font-size:1.14rem}
+.axis-desc{color:var(--ink-soft);font-size:.92rem;margin:3px 0 10px}
+.pips{display:flex;gap:7px}
+.pip{flex:1;min-height:46px;padding:5px 2px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);cursor:pointer;font-family:'Spectral';font-size:.83rem;line-height:1.15;color:var(--ink-soft);transition:all .15s ease}
+.pip small{font-size:.66rem;opacity:.8}
+.pip:hover{border-color:var(--accent)}
+.pip.on{background:var(--accent);border-color:var(--accent-deep);color:#fff;box-shadow:0 0 12px var(--glow)}
+.pip.on small{opacity:.92}
+.pip.dis{opacity:.35;cursor:not-allowed}
+
+.note{font-size:.88rem;font-style:italic;color:var(--ink-soft);border-left:3px solid var(--line);padding-left:13px;margin:10px 0}
+.worldnotes{background:linear-gradient(165deg,var(--panel),var(--panel-2));border:1px solid var(--line-soft);border-radius:14px;padding:22px 24px;margin-top:16px;box-shadow:0 6px 20px rgba(60,44,20,.08)}
+.worldnotes p{margin-bottom:12px}
+.worldnotes p:last-child{margin-bottom:0}
+.worldnotes b{color:var(--accent-deep);font-weight:600;font-family:'Fraunces',serif}
+
+.nav{display:flex;justify-content:space-between;margin-top:30px;gap:12px}
+.nav button{font-family:'Fraunces',serif;font-weight:600;background:var(--accent);color:#fff;border:none;border-radius:11px;padding:12px 22px;cursor:pointer;font-size:1rem;box-shadow:0 5px 16px var(--glow);transition:all .2s ease}
+.nav button:hover{background:var(--accent-deep);transform:translateY(-2px)}
+.nav button.ghost{background:transparent;color:var(--ink-soft);box-shadow:none;border:1px solid var(--line);font-weight:500}
+.nav button.ghost:hover{color:var(--ink);transform:none;background:var(--accent-soft)}
+
+.scroll{background:linear-gradient(165deg,#f6efdb,#ece0c2);border:1px solid var(--line);border-radius:14px;padding:26px 28px;box-shadow:inset 0 0 50px rgba(120,92,48,.10),0 8px 24px rgba(60,44,20,.10)}
+.scroll h2{color:var(--accent-deep)}
+.s-line{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line-soft);align-items:baseline}
+.s-line:last-child{border-bottom:none}
+.s-key{flex:none;width:150px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);padding-top:3px}
+.s-val{flex:1}
+.s-val b{font-family:'Fraunces',serif;font-weight:600;font-size:1.1rem}
+.s-val span{color:var(--ink-soft)}
+.karma{margin-top:18px;font-style:italic;color:var(--accent-deep);border-top:1px solid var(--line);padding-top:14px}
+.overbanner{background:rgba(178,58,38,.12);border:1px solid var(--bad);color:var(--bad);border-radius:10px;padding:12px 15px;margin-bottom:16px;font-style:italic;font-size:.96rem}
+.cost.disc{color:#fff;background:var(--accent);border-color:var(--accent-deep)}
+.cost.disc s{opacity:.55;font-weight:400;margin-right:3px}
+.opt.perked{box-shadow:0 0 0 1px var(--accent) inset}
+.opt.perked::after{content:'✦ −' attr(data-saved);position:absolute;top:-8px;left:14px;background:var(--accent);color:#fff;font-family:'Spectral';font-size:.64rem;letter-spacing:.04em;font-weight:600;padding:2px 8px;border-radius:9px;box-shadow:0 2px 7px var(--glow)}
+.cost.freecost{color:#fff;background:#3f7a4a;border-color:#2f6238}
+.cost.freecost s{opacity:.55;font-weight:400;margin-right:3px}
+.opt.freebie{box-shadow:0 0 0 1px #3f7a4a inset}
+.opt.freebie::after{content:'✦ mastery — free';position:absolute;top:-8px;left:14px;background:#3f7a4a;color:#fff;font-family:'Spectral';font-size:.64rem;letter-spacing:.04em;font-weight:600;padding:2px 8px;border-radius:9px;box-shadow:0 2px 7px rgba(63,122,74,.4)}
+.perks{font-style:italic;color:var(--accent-deep);background:var(--accent-soft);border:1px solid var(--line-soft);border-radius:11px;padding:11px 15px;margin:14px 0 2px;font-size:.97rem}
+.mpool{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;background:linear-gradient(160deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:11px;padding:10px 15px;margin-bottom:12px}
+.mpool .mp-lab{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft)}
+.mpool .mp-num{font-family:'Fraunces',serif;font-weight:700;font-size:1.5rem;color:var(--accent-deep)}
+.mpool .mp-num.over{color:var(--bad)}
+.mpool .mp-of{font-size:.88rem;color:var(--ink-soft)}
+.empty{color:var(--ink-soft);font-style:italic}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .motes{display:none}
+  .crest{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="em-air" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="3.5"/>
+    <g fill="currentColor">
+      <path d="M50 50 C49 32 60 23 75 27 C64 27 58 35 57 45 C56 51 51 52 50 50 Z" transform="rotate(0 50 50)"/>
+      <path d="M50 50 C49 32 60 23 75 27 C64 27 58 35 57 45 C56 51 51 52 50 50 Z" transform="rotate(120 50 50)"/>
+      <path d="M50 50 C49 32 60 23 75 27 C64 27 58 35 57 45 C56 51 51 52 50 50 Z" transform="rotate(240 50 50)"/>
+    </g>
+  </symbol>
+  <symbol id="em-water" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="3.5"/>
+    <path d="M62 20 a22 22 0 1 0 1 41 a16 16 0 1 1 -1 -41 Z" fill="currentColor"/>
+    <path d="M22 62 q7 -8 14 0 t14 0 t14 0" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M24 73 q6.5 -7 13 0 t13 0 t13 0" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="em-earth" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="3.5"/>
+    <rect x="30" y="30" width="40" height="40" rx="3" transform="rotate(45 50 50)" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="40" y="40" width="20" height="20" rx="2" transform="rotate(45 50 50)" fill="currentColor"/>
+  </symbol>
+  <symbol id="em-fire" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="3.5"/>
+    <path d="M50 21 C58 35 71 41 66 57 C63 68 56 73 50 79 C44 73 37 68 34 57 C29 41 42 35 50 21 Z" fill="currentColor"/>
+    <path d="M50 44 C54 50 56 55 53 61 C51 65 50 67 50 67 C50 67 49 65 47 61 C44 55 46 50 50 44 Z" fill="#fff" opacity="0.32"/>
+  </symbol>
+</defs></svg>
+<div class="motes" aria-hidden="true"></div>
+<div class="wrap">
+  <header>
+    <div class="crest" id="crest"></div>
+    <p class="eyebrow">A character for the world of Avatar</p>
+    <h1>Four Elements,<span class="turn">one soul</span></h1>
+    <p class="dek">Water, earth, fire, air. In every age, one soul is born to master all four and hold the balance between them — the Avatar. This age, that soul is you. You'll fly on a bison's back, bicker with spirits, and learn to bend the world four ways… but first you decide who you are. The choosing happened lifetimes ago; what's left is who you'll be this time.</p>
+  </header>
+
+  <div class="tracker">
+    <div class="orb-wrap">
+      <div class="orb" id="orb"><span class="crest-mini" id="orbCrest"></span><span class="num" id="orbNum">—</span></div>
+      <div class="orb-meta">
+        <span class="lab">Points to spend</span>
+        <span class="who" id="who">Choose an incarnation</span>
+      </div>
+    </div>
+    <button class="reset" id="reset">Begin again</button>
+  </div>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <!-- PROLOGUE -->
+  <section class="panel" data-tab="prologue">
+    <h2>Before you begin</h2>
+    <p class="lead">A few truths about this world — less a rulebook than the things a wise traveler would want you to know before you set out.</p>
+    <div class="worldnotes">
+      <p>You are the <b>Avatar</b>: the one soul reborn across the cycle, the bridge between the physical and spirit worlds. You will master all four elements in time — that was never in question. What you choose here is not <i>whether</i>, but <i>where you stand at the start</i>, and what kind of person carries the weight.</p>
+      <p><b>The world is a body.</b> When one nation dominates, everyone sickens — the conquerors included. Balance is not a slogan; it is health.</p>
+      <p><b>Your bending bends the way you live.</b> A gentle person's fire looks nothing like a cruel one's. Power reveals character; it does not replace it.</p>
+      <p><b>The spirit world is a relationship,</b> not a resource to be mined. It remembers how it was treated.</p>
+      <p><b>Vengeance and raw power chase their own tails.</b> The cycle breaks for the ones who learn to set something down.</p>
+      <p>You are the most powerful person alive, and still just a person who can be frightened, and wrong, and kind. That is the whole problem, and the whole point.</p>
+    </div>
+    <div class="nav"><span></span><button class="next">Choose your incarnation →</button></div>
+  </section>
+
+  <!-- INCARNATION -->
+  <section class="panel" data-tab="incarnation">
+    <h2>Choose an incarnation</h2>
+    <p class="lead">Pick one of the four. You inherit their fate — their era, their element, the shape of their troubles — but not their soul; that you'll make your own on the next page. The harder the world you wake into, the more you're handed to survive it. A quiet age needs no head start; time itself will carry you to mastery.</p>
+    <div class="nations" id="nations"></div>
+    <p class="perks" id="perks"></p>
+
+    <h3>The world, on your terms</h3>
+    <p class="note">Three framings that ease the road. Each makes life softer in exchange for points, because comfort needs no compensation — and on a quiet life, you may not afford all three at once. That's the trade.</p>
+    <div id="world"></div>
+
+    <div class="nav"><button class="prev ghost">← Back</button><button class="next">Become someone →</button></div>
+  </section>
+
+  <!-- YOU -->
+  <section class="panel" data-tab="you">
+    <h2>Who are you?</h2>
+    <p class="lead">You inherited a fate. Now decide who lives it. None of this costs you anything — the cycle has worn a thousand faces, and the next is yours to shape.</p>
+    <div class="field"><label>This life, you are</label>
+      <div class="choice-row" id="gender" data-single></div>
+    </div>
+    <div class="field"><label>Temperament — how you meet the world</label>
+      <div class="choice-row" id="temperament" data-single></div>
+    </div>
+    <div class="field"><label>Does the world know what you are?</label>
+      <div class="choice-row" id="identity" data-single></div>
+    </div>
+
+    <h3>Boons of the bridge</h3>
+    <p class="note">Every Avatar is the bridge between worlds — that comes free. What you buy here is how <i>naturally</i> it comes, and how clearly the ones who came before you can reach you.</p>
+    <h3 style="font-size:1.05rem">Reaching your past lives</h3>
+    <div id="pastlife"></div>
+    <h3 style="font-size:1.05rem">Affinity with spirits</h3>
+    <div id="affinity"></div>
+    <h3 style="font-size:1.05rem">Gifts of the self</h3>
+    <div id="boons"></div>
+
+    <div class="nav"><button class="prev ghost">← Back</button><button class="next">Find your purpose →</button></div>
+  </section>
+
+  <!-- PATH -->
+  <section class="panel" data-tab="path">
+    <h2>Your purpose</h2>
+    <p class="lead">A purpose to point the story by — take as many as ring true. They cost nothing; they simply name what you're walking toward.</p>
+    <div id="missions"></div>
+
+    <h3>And who walks with you</h3>
+    <p class="note">It wouldn't be this world without them. The little ones ask nothing; the great mounts and rarer souls cost what they're worth. Take as many as you can carry.</p>
+    <div id="companions"></div>
+
+    <div class="nav"><button class="prev ghost">← Back</button><button class="next">Gather your life →</button></div>
+  </section>
+
+  <!-- BELONGINGS -->
+  <section class="panel" data-tab="belongings">
+    <h2>What you carry</h2>
+    <p class="lead">Your incarnation already gave you what their story gave them — Roku's comfort, Korra's compound, Kyoshi's nothing. Here you furnish the rest.</p>
+    <h3>A roof, of some kind</h3>
+    <div id="home"></div>
+    <h3>What's in your hands</h3>
+    <div id="items"></div>
+    <h3>Coin</h3>
+    <div id="money"></div>
+    <h3>Who you know</h3>
+    <p class="note">In this world the real currency isn't rank — it's allies. One choice here can also cost you: a price on your head hands you points, and a great deal of trouble.</p>
+    <div id="allies"></div>
+
+    <div class="nav"><button class="prev ghost">← Back</button><button class="next">Learn to bend →</button></div>
+  </section>
+
+  <!-- BENDING -->
+  <section class="panel" data-tab="bending">
+    <h2>The art of bending</h2>
+    <p class="lead">You'll learn all four elements before the end — so none of this is about <i>whether</i>. It's about where you're already ahead, and the one specialty that makes your bending unmistakably yours.</p>
+
+    <h3>The three measures</h3>
+    <p class="note">These run across everything you bend, and draw on their own pool — ten training points, one per level (0–5 each). Spread them how you like: five in one leaves five for another, and nothing for the third. No one is legendary at all three.</p>
+    <div class="mpool" id="mpool"></div>
+    <div id="axes"></div>
+
+    <h3>A head start on the other elements</h3>
+    <p class="note" id="elem-note">Your native element comes free and easy. For the rest, points buy how far along you already are — though you can open a master of only one beyond your own. The years will deliver the others.</p>
+    <p class="note" id="kbonus" style="border-color:var(--accent);display:none"></p>
+    <div id="elements"></div>
+
+    <h3>The art that is yours alone</h3>
+    <p class="note">A specialty is a specific art you can <i>do</i> — bending blood, throwing lightning, seeing through stone. It isn't a measure of how masterful you are (that's the head-start above); it's the rare technique itself, learned or not. This is what sets one Avatar apart from the next. <b>Because you've mastered your native element from birth, one of its arts is always free</b> — and mastering another element earns a free art there too.</p>
+    <div id="specs"></div>
+
+    <h3>The Avatar's own power</h3>
+    <div id="capstones"></div>
+
+    <div class="nav"><button class="prev ghost">← Back</button><button class="next">Read your scroll →</button></div>
+  </section>
+
+  <!-- SUMMARY -->
+  <section class="panel" data-tab="scroll">
+    <div class="scroll">
+      <h2>Your scroll</h2>
+      <p class="lead" id="scroll-open">Make your choices, and the life you've shaped will gather here.</p>
+      <div id="summary"></div>
+      <div class="karma" id="karma" hidden></div>
+    </div>
+    <div class="nav"><button class="prev ghost">← Back</button><span></span></div>
+  </section>
+</div>
+
+<script>
+const NATION = {
+  air:  {accent:'#d98a2b',deep:'#a8631a',soft:'rgba(217,138,43,.16)',glow:'rgba(217,138,43,.32)'},
+  water:{accent:'#2f6f9e',deep:'#1f5277',soft:'rgba(47,111,158,.16)',glow:'rgba(47,111,158,.32)'},
+  earth:{accent:'#5f7d39',deep:'#445c27',soft:'rgba(95,125,57,.16)',glow:'rgba(95,125,57,.30)'},
+  fire: {accent:'#b23a26',deep:'#85271a',soft:'rgba(178,58,38,.16)',glow:'rgba(178,58,38,.30)'},
+  none: {accent:'#9a7a3c',deep:'#7c5f2a',soft:'rgba(154,122,60,.14)',glow:'rgba(154,122,60,.30)'}
+};
+
+const DATA = {
+  incarnations:[
+    {id:'aang', name:'Aang', el:'air', base:36, desc:'Wake after a hundred years of ice to a world that burned in your sleep, your people gone to ash. The Fire Nation hunts you and a comet is coming. The heaviest road — and the one most worth walking.'},
+    {id:'korra',name:'Korra', el:'water', base:28, desc:'Born in the modern age and named the Avatar at four — raised behind walls by those who meant to keep you safe. The world is louder now: equalists, civil war, the portals straining open.'},
+    {id:'roku', name:'Roku', el:'fire', base:22, desc:'Born comfortable and powerful, best friend to the boy who will one day start the war. The calm before the storm, and the quiet, terrible chance to cut the seed before it grows.'},
+    {id:'kyoshi',name:'Kyoshi', el:'earth', base:19, desc:'A long, stable age. You begin poor and abandoned, before the mantle finds you — but no war presses, no comet looms. Only your own two centuries, and what you choose to do with them.'}
+  ],
+  world:[
+    {id:'memory', cost:5, name:'You remember our world', off:'Wholly of this world', on:'The mind of another world',
+     desc:'You carry the knowledge of another world — ours. Its science, its machines, its centuries of hard-won understanding. In a place that runs on bending and spirits, that is a strange and enormous power: marry steam and steel to the elements, drag this age toward an industrial revolution generations early, or simply grasp why things work in ways no sage alive can. The future is yours to build, if you\'re bold enough.'},
+    {id:'burden', cost:6, name:'Avatar in name only', off:'The mantle\'s full weight', on:'Power without duty',
+     desc:'The power and the past lives are yours, but no sage, nation, or spirit lays a claim on you. No one expects you to mend the world. A far softer life.'},
+    {id:'fore',   cost:7, name:'You know what comes', off:'The future is open', on:'Foreknowledge of the tale',
+     desc:'You know the shape of the story ahead — its dangers, its allies, the hour the comet falls. The single greatest advantage anyone could carry into this world.'}
+  ],
+  genders:['a girl','a boy','beyond either'],
+  temperaments:['gentle','fierce','playful','solemn','cunning','serene'],
+  identities:[
+    {id:'known',cost:0,label:'Known — they expect everything of you'},
+    {id:'hidden',cost:2,label:'Hidden — the world expects nothing, yet · 2 pts'}
+  ],
+  pastlife:[
+    {id:'sealed',cost:0,name:'Sealed',desc:'The way it usually is — your predecessors are distant, reachable only when you are desperate enough to break through to them.'},
+    {id:'faint', cost:2,name:'Faint echoes',desc:'Instinct and half-heard counsel. They surface unbidden; you cannot quite summon them.'},
+    {id:'clear', cost:5,name:'Clear counsel',desc:'You can sit with the one before you and speak — and borrow, a little, the skill they spent a life earning.'},
+    {id:'chorus',cost:8,name:'The full chorus',desc:'Call on all who came before, and let their mastery move through you. A waking step toward what the Avatar State does on its own.'}
+  ],
+  affinity:[
+    {id:'none', cost:0,name:'The ordinary bridge',desc:'You cross over the way any Avatar can — with effort, and care.'},
+    {id:'name', cost:3,name:'The spirits know your name',desc:'They seek you out. Crossing comes easily, and you read a soul gone wrong at a glance.'},
+    {id:'regard',cost:6,name:'A great spirit\'s regard',desc:'One of the old and vast ones — Tui and La, the moon and ocean who circle each other forever; Hei Bai, who keeps the forest; the gentle Painted Lady of the river — has taken an interest in you. A gift, and a leash.'}
+  ],
+  boons:[
+    {id:'learner', cost:4,name:'A quick study',desc:'Forms stick the first time. You close the gap on the elements you didn\'t buy far faster than most.'},
+    {id:'strategist',cost:3,name:'A tactician\'s mind',desc:'You see the board three moves out. The kind of clever that wins wars without throwing a punch.'},
+    {id:'chi',cost:3,name:'Chi-blocking',desc:'Strike the right points and a bender is, for a few minutes, no bender at all. Power that needs no bending of your own.'},
+    {id:'inventor',cost:3,name:'An inventor\'s hands',desc:'You build. Mechanisms, contraptions, solutions no one has tried — the engine of a different kind of progress.'},
+    {id:'will',cost:3,name:'Iron will',desc:'Fear-toxins, mind games, even the pull of a bloodbender\'s grip find less purchase on you than they should.'},
+    {id:'heal',cost:2,name:'Slow to age, quick to mend',desc:'Wounds close faster; years touch you lighter. Time is on your side more than most.'},
+    {id:'luck',cost:2,name:'A turn of fortune',desc:'Once, when it matters most, fate looks the other way and lets you try again.'}
+  ],
+  missions:[
+    {id:'balance',name:'Restore the balance',desc:'The oldest charge of the Avatar — set right what tyranny has bent. The road everyone expects of you.'},
+    {id:'unfinished',name:'Settle an old debt',desc:'A wrong from a past life reaches into this one — Kuruk\'s grudge against Koh, Roku\'s guilt over Sozin. You finish what you began before you were you.'},
+    {id:'race',name:'Master all four before the storm',desc:'A catastrophe is coming and you are not ready. The whole of your story is a race against a closing door.'},
+    {id:'spirit',name:'Heal a wound in the spirit world',desc:'A torn portal, a spirit gone dark. The trouble is on the other side of the veil, and only you can cross to mend it.'},
+    {id:'pacifist',name:'End a war without becoming a weapon',desc:'You could win by force. You have decided not to. The hardest road, and the most like the best of those who came before.'},
+    {id:'home',name:'Find where you belong',desc:'You don\'t yet know where home is. The quietest purpose, and not the smallest — a life spent learning to stop running.'}
+  ],
+  companions:[
+    {id:'lemur', tier:'free',cost:0,name:'Tomo, a flying lemur',desc:'Quick, curious, a thief of small bright things, and — when it counts — a friend who comes back for you.'},
+    {id:'ferret',tier:'free',cost:0,name:'Rua, a fire ferret',desc:'A scrap of warmth and mischief that rides your shoulder and means it when it chooses you.'},
+    {id:'hawk',  tier:'free',cost:0,name:'Sora, a messenger hawk',desc:'Eyes above the road and a way to reach the people you love across a divided world.'},
+    {id:'ostrich',tier:'free',cost:0,name:'Tula, an ostrich-horse',desc:'No frills, all heart — it will carry you and your troubles a very long way.'},
+    {id:'naga', tier:'mid',cost:2,name:'Kallik, a polar bear dog',desc:'Bigger than you, warmer than a fire, and she has decided you are hers. She\'ll put herself between you and anything that means you harm.'},
+    {id:'eel',  tier:'mid',cost:2,name:'Suru, an eel-hound',desc:'Land or water, it doesn\'t care; it runs like rumor and swims like it was born to. Few mounts are faster.'},
+    {id:'shirshu',tier:'mid',cost:2,name:'Vesh, a shirshu',desc:'Blind, and it doesn\'t matter — it can find one soul in all the world by scent alone. A plot you can ride.'},
+    {id:'bison',tier:'high',cost:4,name:'Nuru, a sky bison',desc:'Six tons of gentleness and the open sky. The last warm piece of a vanished people, and the truest friend you will ever fly with.'},
+    {id:'dragon',tier:'high',cost:6,name:'Sunja, a dragon',desc:'The first masters of fire, nearly gone from the world. That one would walk beside you means the fire itself has judged you worthy.'},
+    {id:'spirit',tier:'high',cost:6,name:'Pim, a bound spirit',desc:'A spirit from the other side has chosen to stay near you — a small wandering thing like the forest-kin that trail after Hei Bai, or something stranger and wholly your own. Loyal, and unbound by the rules the living obey.'}
+  ],
+  home:[
+    {id:'drift',cost:0,name:'The open road',desc:'No walls, no anchor — and nothing to lose. Home is wherever you set down tonight.'},
+    {id:'family',cost:1,name:'A family home',desc:'A door that\'s yours, a hearth that remembers you. Somewhere to come back to.'},
+    {id:'retreat',cost:2,name:'A hidden retreat',desc:'A place the world doesn\'t know — for healing, for hiding, for becoming someone before the world demands you.'},
+    {id:'temple',cost:2,name:'Ties to a temple',desc:'A standing place among those who keep the old ways: teachers, archives, and the slow company of the devout.'}
+  ],
+  items:[
+    {id:'heirloom',cost:1,name:'An heirloom',desc:'A small thing carried out of your nation — a focus, a keepsake, a reminder of who your people were.'},
+    {id:'weapon',cost:2,name:'A master\'s weapon',desc:'War fans, a meteor blade, something forged with real intent. Power that asks nothing of your bending.'},
+    {id:'gadgets',cost:1,name:'A kit of clever things',desc:'Tools and contraptions for the problems fists don\'t solve. The non-bender\'s quiet arsenal.'},
+    {id:'relic',cost:2,name:'A spirit-touched object',desc:'Something the other side has left its mark on. It does things the physical world can\'t quite explain.'},
+    {id:'scroll',cost:2,name:'A rare scroll',desc:'A technique most have never seen, set down in ink. Knowledge you\'d otherwise spend years to find.'}
+  ],
+  money:[
+    {id:'destitute',cost:0,name:'Empty pockets',desc:'You start with nothing but what you can carry. Every coin will be earned.'},
+    {id:'modest',cost:1,name:'Enough to get by',desc:'No luxury, but no begging either. A floor under your feet.'},
+    {id:'comfort',cost:2,name:'Comfortable means',desc:'Doors open a little easier when you can pay for the room and the road.'},
+    {id:'wealth',cost:3,name:'A war chest',desc:'Enough to fund a cause, raise a crew, or buy a problem out of your way.'}
+  ],
+  allies:[
+    {id:'retainer',cost:1,name:'A loyal retainer',desc:'One person who is yours, all the way through. In this world that is worth more than an army.'},
+    {id:'network',cost:2,name:'A web of contacts',desc:'Eyes and ears in the right places. Word reaches you before it reaches your enemies.'},
+    {id:'lotus-know',cost:1,name:'You know of the White Lotus',desc:'You know the old society of masters exists, and how to find a door. The rest you must earn.'},
+    {id:'lotus-in',cost:3,name:'Initiate of the White Lotus',desc:'You are one of them — the cross-nation order of philosophers and grandmasters who serve no flag but balance.'},
+    {id:'debt',cost:2,name:'A powerful debt owed',desc:'Someone who matters owes you, and knows it. A favor you can call in once, when it counts.'},
+    {id:'cell',cost:1,name:'A resistance cell',desc:'A band of the unbroken who will rise when you give the word. Loyal, hunted, brave.'},
+    {id:'bounty',cost:-3,name:'A price on your head',desc:'Powerful people want you gone, and they\'re paying. It hands you resources and resourcefulness — and a great deal of trouble.',refund:true}
+  ],
+  axes:[
+    {id:'power',name:'Power',desc:'Output, reach, the sheer scale of what you can move and unmake.'},
+    {id:'control',name:'Control',desc:'Finesse and precision — the difference between a healer and a hammer.'},
+    {id:'knowledge',name:'Knowledge',desc:'The breadth of forms you command, and the rarer arts they unlock.'}
+  ],
+  axisCost:[0,0,2,4,6,9], // cumulative cost to reach level (index = level 1..5)
+  elemTiers:[
+    {id:'none',cost:0,name:'Untouched'},
+    {id:'stirring',cost:2,name:'Stirring'},
+    {id:'competent',cost:4,name:'Competent'},
+    {id:'mastered',cost:7,name:'Mastered'}
+  ],
+  specs:{
+    water:[{id:'heal',cost:2,name:'Healing'},{id:'ice',cost:3,name:'Ice & plant'},{id:'blood',cost:6,name:'Bloodbending',dark:true,note:'Bound to the full moon — and it stains the soul.'}],
+    earth:[{id:'metal',cost:4,name:'Metalbending'},{id:'sand',cost:3,name:'Sandbending'},{id:'seismic',cost:4,name:'Seismic sense'},{id:'lava',cost:6,name:'Lavabending',note:'Rare beyond rare.'}],
+    fire: [{id:'innerfire',cost:2,name:'The inner fire'},{id:'lightning',cost:4,name:'Lightning, generation'},{id:'redirect',cost:3,name:'Lightning, redirection'},{id:'combustion',cost:6,name:'Combustion',note:'Devastating, and a hair from killing the one who wields it.'}],
+    air:  [{id:'glide',cost:2,name:'Gliding mastery'},{id:'project',cost:4,name:'Spiritual projection'},{id:'scythe',cost:4,name:'Air-scything'}]
+  },
+  avatarState:[
+    {id:'none',cost:0,name:'Not yet',desc:'It sleeps in you, as it does in every Avatar, waiting.'},
+    {id:'involuntary',cost:4,name:'Involuntary',desc:'In great danger or grief it takes you — all the past lives at once — and you do not choose it, or remember it well.'},
+    {id:'partial',cost:7,name:'Half-mastered',desc:'You can reach for it, sometimes, and mostly come back yourself.'},
+    {id:'mastered',cost:10,name:'Mastered',desc:'It comes when you call and leaves when you bid it. The full weight of every life you\'ve lived, in your hands.'}
+  ],
+  energy:{id:'energy',cost:10,name:'Energybending',desc:'To bend the energy within another — to take a power, or restore it. The oldest and most dangerous art, and it asks an unbendable spirit of its own. Requires a great spirit\'s regard, or the full chorus of your past lives.'}
+};
+
+const EL_NAME = {air:'Air',water:'Water',earth:'Earth',fire:'Fire'};
+const ELEMENTS = ['air','water','earth','fire'];
+
+const state = {
+  incarnation:null,
+  world:{memory:false,burden:false,fore:false},
+  gender:null, temperament:null, identity:null,
+  pastlife:'sealed', affinity:'none', boons:new Set(),
+  missions:new Set(), companions:new Set(),
+  home:null, items:new Set(), money:null, allies:new Set(),
+  axes:{power:0,control:0,knowledge:0},
+  elements:{}, avatarState:'none', energy:false
+};
+
+/* ---------- cost engine (pure) ---------- */
+function nativeEl(){ const i=DATA.incarnations.find(x=>x.id===state.incarnation); return i?i.el:null; }
+function baseBudget(){ const i=DATA.incarnations.find(x=>x.id===state.incarnation); return i?i.base:0; }
+
+const MEASURES_POOL=10;
+const DISC_GROUPS={world:1,affinity:1,boons:1,companions:1,items:1,money:1,allies:1,spec:1};
+const PERKS={
+  aang:   { affinity:1, companions:1, spec:{glide:1}, measure:{control:2} },
+  kyoshi: { spec:{metal:1,sand:1,seismic:1,lava:1}, money:1, allies:1, measure:{power:2} },
+  korra:  { world:{memory:2}, boons:{inventor:1}, items:{gadgets:1}, spec:{lightning:1,combustion:1,scythe:1,lava:1}, measure:{power:2} },
+  roku:   { boons:{strategist:1}, allies:{'lotus-know':1,'lotus-in':1}, spec:{lightning:1,redirect:1}, measure:{knowledge:2} }
+};
+const PERK_TEXT={
+  aang:'As Aang, the spirits, the gentler path, gliding, and the company of creatures all come a little easier.',
+  kyoshi:'As Kyoshi, earthbending mastery, wealth, allies, and raw power all come a little easier.',
+  korra:'As Korra, physical power, modern invention, and aggressive bending all come a little easier.',
+  roku:'As Roku, wisdom, diplomacy, the White Lotus, and lightning all come a little easier.'
+};
+function discOf(inc,group,id){
+  const p=PERKS[inc]; if(!p) return 0;
+  const g=p[group]; if(g==null) return 0;
+  if(typeof g==='number') return g;
+  return g[id]||0;
+}
+function eff(inc,group,id,cost){ return Math.max(0, cost - discOf(inc,group,id)); }
+
+function companionSpend(s){
+  return [...s.companions].reduce((t,id)=>{ const c=DATA.companions.find(x=>x.id===id); return t+eff(s.incarnation,'companions',id,c.cost); },0);
+}
+function mainSpent(s){
+  const inc=s.incarnation; let t=0;
+  DATA.world.forEach(w=>{ if(s.world[w.id]) t+=eff(inc,'world',w.id,w.cost); });
+  { const idn=DATA.identities.find(i=>i.id===s.identity); if(idn) t+=idn.cost; }
+  t+=DATA.pastlife.find(p=>p.id===s.pastlife).cost;
+  { const a=DATA.affinity.find(a=>a.id===s.affinity); t+=eff(inc,'affinity',s.affinity,a.cost); }
+  s.boons.forEach(id=>{ const b=DATA.boons.find(b=>b.id===id); t+=eff(inc,'boons',id,b.cost); });
+  t+=companionSpend(s);
+  if(s.home) t+=DATA.home.find(h=>h.id===s.home).cost;
+  s.items.forEach(id=>{ const it=DATA.items.find(i=>i.id===id); t+=eff(inc,'items',id,it.cost); });
+  if(s.money){ const m=DATA.money.find(m=>m.id===s.money); t+=eff(inc,'money',s.money,m.cost); }
+  s.allies.forEach(id=>{ const a=DATA.allies.find(a=>a.id===id); t+=eff(inc,'allies',id,a.cost); });
+  const freeBasics=Math.floor(s.axes.knowledge/2);
+  const elemCosts=Object.entries(s.elements).filter(([el,tier])=>tier!=='none').map(([el,tier])=>{ const base=DATA.elemTiers.find(x=>x.id===tier).cost; const d=(PERKS[inc]&&PERKS[inc].elementTier&&PERKS[inc].elementTier[el])||0; return Math.max(0,base-d); }).sort((a,b)=>b-a);
+  elemCosts.forEach((c,i)=>{ t+= (i<freeBasics)? Math.max(0,c-2) : c; });
+  const natEl=(DATA.incarnations.find(i=>i.id===inc)||{}).el;
+  ELEMENTS.forEach(el=>{
+    const costs=DATA.specs[el].filter(sp=>s['spec_'+sp.id]).map(sp=>eff(inc,'spec',sp.id,sp.cost));
+    let et=costs.reduce((a,b)=>a+b,0);
+    const mastered=(el===natEl)||(s.elements[el]==='mastered');
+    if(mastered && costs.length) et-=Math.max(...costs);
+    t+=et;
+  });
+  t+=DATA.avatarState.find(a=>a.id===s.avatarState).cost;
+  if(s.energy) t+=DATA.energy.cost;
+  return t;
+}
+function measuresSpent(s){
+  const inc=s.incarnation; let t=0;
+  DATA.axes.forEach(ax=>{ const base=s.axes[ax.id]; const d=(PERKS[inc]&&PERKS[inc].measure&&PERKS[inc].measure[ax.id])||0; t+=Math.max(0,base-d); });
+  return t;
+}
+function mainRemaining(){ return baseBudget()-mainSpent(state); }
+function measuresRemaining(){ return MEASURES_POOL-measuresSpent(state); }
+
+/* ---------- theming ---------- */
+function applyTheme(el){
+  const t=NATION[el]||NATION.none;
+  const r=document.documentElement.style;
+  r.setProperty('--accent',t.accent);
+  r.setProperty('--accent-deep',t.deep);
+  r.setProperty('--accent-soft',t.soft);
+  r.setProperty('--glow',t.glow);
+  const crest=$('crest'), oc=$('orbCrest'), box=document.querySelector('.motes');
+  if(el && el!=='none'){
+    document.body.setAttribute('data-nation',el);
+    const svg=`<svg viewBox="0 0 100 100"><use href="#em-${el}"/></svg>`;
+    if(crest) crest.innerHTML=svg; if(oc) oc.innerHTML=svg;
+    makeParticles(el);
+  } else {
+    document.body.removeAttribute('data-nation');
+    if(crest) crest.innerHTML=''; if(oc) oc.innerHTML='';
+    if(box) box.innerHTML='';
+  }
+}
+function makeParticles(el){
+  const box=document.querySelector('.motes'); if(!box) return; box.innerHTML='';
+  const conf={
+    air:{color:'rgba(255,247,228,.95)',dir:'floatUp',n:16,min:3,max:7},
+    fire:{color:'#ffb24d',dir:'floatUp',n:20,min:2,max:5,glow:true},
+    water:{color:'rgba(223,241,255,.95)',dir:'floatDown',n:16,min:2,max:5},
+    earth:{color:'#cdbf8e',dir:'floatDown',n:14,min:2,max:5}
+  }[el];
+  if(!conf) return;
+  for(let i=0;i<conf.n;i++){
+    const m=document.createElement('div'); m.className='mote';
+    const sz=conf.min+Math.random()*(conf.max-conf.min);
+    m.style.width=m.style.height=sz.toFixed(1)+'px';
+    m.style.left=(Math.random()*100).toFixed(1)+'vw';
+    m.style.background=conf.color;
+    if(conf.glow) m.style.boxShadow='0 0 6px '+conf.color;
+    m.style.animation=`${conf.dir} ${(10+Math.random()*14).toFixed(1)}s linear ${(Math.random()*12).toFixed(1)}s infinite`;
+    box.appendChild(m);
+  }
+}
+
+/* ---------- builders ---------- */
+const $=(id)=>document.getElementById(id);
+function costBadge(cost,refund){
+  if(refund) return `<span class="cost refund">+${Math.abs(cost)} pts back</span>`;
+  if(cost===0) return `<span class="cost free">free</span>`;
+  return `<span class="cost">${cost} pts</span>`;
+}
+
+function buildStatics(){
+  // nations
+  $('nations').innerHTML=DATA.incarnations.map(i=>`
+    <div class="opt nation n-${i.el}" data-grp="incarnation" data-id="${i.id}">
+      <div class="banner">
+        <div class="emblem"><svg viewBox="0 0 100 100"><use href="#em-${i.el}"/></svg></div>
+        <div><div class="nm">${i.name}</div><div class="el">${EL_NAME[i.el]} · ${i.base} points</div></div>
+      </div>
+      <div class="opt-desc">${i.desc}</div>
+    </div>`).join('');
+
+  // world toggles
+  $('world').innerHTML=DATA.world.map(w=>`
+    <div class="opt" data-grp="world" data-id="${w.id}" data-cost="${w.cost}">
+      <div class="opt-top"><span class="opt-name">${w.name}</span>${costBadge(w.cost)}</div>
+      <div class="opt-desc">${w.desc}</div>
+      <div class="tag" data-wtag="${w.id}">Currently: ${w.off}</div>
+    </div>`).join('');
+
+  // you — chips
+  $('gender').innerHTML=DATA.genders.map(g=>`<button class="chip" data-grp="gender" data-id="${g}">${g}</button>`).join('');
+  $('temperament').innerHTML=DATA.temperaments.map(t=>`<button class="chip" data-grp="temperament" data-id="${t}">${t}</button>`).join('');
+  $('identity').innerHTML=DATA.identities.map(i=>`<button class="chip" data-grp="identity" data-id="${i.id}">${i.label}</button>`).join('');
+
+  $('pastlife').innerHTML=DATA.pastlife.map(p=>`
+    <div class="opt" data-grp="pastlife" data-id="${p.id}">
+      <div class="opt-top"><span class="opt-name">${p.name}</span>${costBadge(p.cost)}</div>
+      <div class="opt-desc">${p.desc}</div></div>`).join('');
+  $('affinity').innerHTML=DATA.affinity.map(a=>`
+    <div class="opt" data-grp="affinity" data-id="${a.id}" data-cost="${a.cost}">
+      <div class="opt-top"><span class="opt-name">${a.name}</span>${costBadge(a.cost)}</div>
+      <div class="opt-desc">${a.desc}</div></div>`).join('');
+  $('boons').innerHTML=DATA.boons.map(b=>`
+    <div class="opt" data-grp="boons" data-id="${b.id}" data-cost="${b.cost}">
+      <div class="opt-top"><span class="opt-name">${b.name}</span>${costBadge(b.cost)}</div>
+      <div class="opt-desc">${b.desc}</div></div>`).join('');
+
+  // path
+  $('missions').innerHTML=DATA.missions.map(m=>`
+    <div class="opt" data-grp="mission" data-id="${m.id}">
+      <div class="opt-top"><span class="opt-name">${m.name}</span><span class="cost free">flavor</span></div>
+      <div class="opt-desc">${m.desc}</div></div>`).join('');
+  $('companions').innerHTML=DATA.companions.map(c=>`
+    <div class="opt" data-grp="companions" data-id="${c.id}" data-cost="${c.cost}">
+      <div class="opt-top"><span class="opt-name">${c.name}</span>${costBadge(c.cost)}</div>
+      <div class="opt-desc">${c.desc}</div></div>`).join('');
+
+  // belongings
+  const grp=(arr,g)=>arr.map(o=>`
+    <div class="opt" data-grp="${g}" data-id="${o.id}" data-cost="${o.cost}">
+      <div class="opt-top"><span class="opt-name">${o.name}</span>${costBadge(o.cost,o.refund)}</div>
+      <div class="opt-desc">${o.desc}</div></div>`).join('');
+  $('home').innerHTML=grp(DATA.home,'home');
+  $('items').innerHTML=grp(DATA.items,'items');
+  $('money').innerHTML=grp(DATA.money,'money');
+  $('allies').innerHTML=grp(DATA.allies,'allies');
+
+  // bending axes
+  $('axes').innerHTML=DATA.axes.map(ax=>`
+    <div class="axis" data-axis="${ax.id}">
+      <div class="axis-top"><span class="axis-name">${ax.name}</span></div>
+      <div class="axis-desc">${ax.desc}</div>
+      <div class="pips">${[1,2,3,4,5].map(l=>`<button class="pip" data-axis="${ax.id}" data-lvl="${l}">${l}</button>`).join('')}</div>
+    </div>`).join('');
+
+  buildElements();
+  buildSpecs();
+
+  $('capstones').innerHTML=`
+    <div class="axis-desc" style="margin-bottom:10px">The Avatar State — every life you've lived, at once.</div>`+
+    DATA.avatarState.map(a=>`
+    <div class="opt" data-grp="avatarState" data-id="${a.id}">
+      <div class="opt-top"><span class="opt-name">${a.name}</span>${costBadge(a.cost)}</div>
+      <div class="opt-desc">${a.desc}</div></div>`).join('')+`
+    <div class="opt" data-grp="energy" data-id="energy">
+      <div class="opt-top"><span class="opt-name">${DATA.energy.name}</span>${costBadge(DATA.energy.cost)}</div>
+      <div class="opt-desc">${DATA.energy.desc}</div>
+      <div class="tag" id="energy-gate"></div></div>`;
+}
+
+function buildElements(){
+  const nat=nativeEl();
+  const others=ELEMENTS.filter(e=>e!==nat);
+  if(!nat){ $('elements').innerHTML=`<p class="empty">Choose an incarnation first — your native element comes free, and the other three appear here.</p>`; return; }
+  $('elements').innerHTML=others.map(el=>`
+    <div class="axis" data-elem="${el}">
+      <div class="axis-top"><span class="axis-name">${EL_NAME[el]}</span></div>
+      <div class="pips">${DATA.elemTiers.map(t=>`<button class="pip" data-elem="${el}" data-tier="${t.id}">${t.name}${t.cost?`<br><small>${t.cost}</small>`:''}</button>`).join('')}</div>
+    </div>`).join('');
+}
+function buildSpecs(){
+  const nat=nativeEl();
+  $('specs').innerHTML=ELEMENTS.map(el=>{
+    const easy = el===nat ? ` <span style="font-size:.72rem;font-style:italic;color:var(--ink-soft)">(your element — comes easiest)</span>`:'';
+    return `<div style="margin-bottom:6px"><div style="font-family:'Fraunces',serif;font-weight:600;color:var(--ink);margin:8px 0 6px">${EL_NAME[el]}${easy}</div>`+
+    DATA.specs[el].map(sp=>`
+      <div class="opt" data-grp="spec" data-el="${el}" data-id="${sp.id}" data-cost="${sp.cost}">
+        <div class="opt-top"><span class="opt-name">${sp.name}</span>${costBadge(sp.cost)}</div>
+        ${sp.note?`<div class="opt-desc">${sp.note}</div>`:''}</div>`).join('')+`</div>`;
+  }).join('');
+}
+
+/* ---------- render (selected + disabled + orb) ---------- */
+function render(){
+  const rem=mainRemaining();
+  // orb
+  $('orbNum').textContent = state.incarnation ? rem : '—';
+  $('orb').classList.toggle('over', !!state.incarnation && rem<0);
+  $('who').textContent = state.incarnation ? DATA.incarnations.find(i=>i.id===state.incarnation).name : 'Choose an incarnation';
+
+  document.querySelectorAll('[data-grp]').forEach(node=>{
+    const grp=node.dataset.grp, id=node.dataset.id;
+    let sel=false;
+    switch(grp){
+      case 'incarnation': sel=state.incarnation===id; break;
+      case 'world': sel=state.world[id]; break;
+      case 'gender': sel=state.gender===id; break;
+      case 'temperament': sel=state.temperament===id; break;
+      case 'identity': sel=state.identity===id; break;
+      case 'pastlife': sel=state.pastlife===id; break;
+      case 'affinity': sel=state.affinity===id; break;
+      case 'boons': sel=state.boons.has(id); break;
+      case 'mission': sel=state.missions.has(id); break;
+      case 'companions': sel=state.companions.has(id); break;
+      case 'home': sel=state.home===id; break;
+      case 'items': sel=state.items.has(id); break;
+      case 'money': sel=state.money===id; break;
+      case 'allies': sel=state.allies.has(id); break;
+      case 'avatarState': sel=state.avatarState===id; break;
+      case 'energy': sel=state.energy; break;
+      case 'spec': sel=!!state['spec_'+id]; break;
+    }
+    node.classList.toggle('sel',sel);
+
+    // disabling: structural gates only — points are allowed to go negative
+    let dis=false;
+    if(!state.incarnation && grp!=='incarnation'){ dis=true; }
+    if(grp==='energy' && !energyGateMet()) dis=true;
+    node.classList.toggle('dis',dis);
+    // discounted-cost badge display
+    if(DISC_GROUPS[grp] && node.dataset.cost!=null){
+      const base=+node.dataset.cost, d=discOf(state.incarnation,grp,id), e=Math.max(0,base-d);
+      const on = d>0 && base>0 && !!state.incarnation;
+      const badge=node.querySelector('.cost');
+      if(badge && !badge.classList.contains('refund')){
+        if(on){ badge.innerHTML=`<s>${base}</s> ${e===0?'free':e+' pts'}`; }
+        else { badge.textContent = base===0?'free':(base+' pts'); }
+        badge.classList.toggle('disc', on);
+        badge.classList.remove('freecost');
+      }
+      node.classList.toggle('perked', on);
+      if(on) node.dataset.saved=d; else node.removeAttribute('data-saved');
+    }
+  });
+
+  // axis pips
+  document.querySelectorAll('.pip[data-axis]').forEach(p=>{
+    const ax=p.dataset.axis, lvl=+p.dataset.lvl;
+    p.classList.toggle('on', lvl<=state.axes[ax]);
+    let dis=false;
+    if(!state.incarnation) dis=true;
+    p.classList.toggle('dis',dis);
+  });
+  // element pips
+  document.querySelectorAll('.pip[data-elem]').forEach(p=>{
+    const el=p.dataset.elem, tier=p.dataset.tier;
+    const cur=state.elements[el]||'none';
+    p.classList.toggle('on', tier===cur);
+    let dis=false;
+    if(!state.incarnation) dis=true;
+    else if(tier==='mastered'){
+      const masteredElsewhere=Object.entries(state.elements).some(([e,t])=>t==='mastered'&&e!==el);
+      if(masteredElsewhere) dis=true;
+    }
+    p.classList.toggle('dis',dis);
+  });
+
+  // free specialization of each mastered element (priciest selected is comped)
+  if(state.incarnation){
+    const natEl2=nativeEl();
+    ELEMENTS.forEach(el=>{
+      DATA.specs[el].forEach(sp=>{ const nd=document.querySelector(`[data-grp="spec"][data-id="${sp.id}"]`); if(nd) nd.classList.remove('freebie'); });
+      const mastered=(el===natEl2)||(state.elements[el]==='mastered');
+      const selSpecs=DATA.specs[el].filter(sp=>state['spec_'+sp.id]);
+      if(mastered && selSpecs.length){
+        let best=null,bc=-1;
+        selSpecs.forEach(sp=>{ const c=eff(state.incarnation,'spec',sp.id,sp.cost); if(c>bc){bc=c;best=sp;} });
+        if(best && bc>0){
+          const nd=document.querySelector(`[data-grp="spec"][data-id="${best.id}"]`);
+          if(nd){ nd.classList.add('freebie'); const b=nd.querySelector('.cost'); if(b){ b.innerHTML=`<s>${best.cost}</s> free`; b.classList.add('freecost'); } }
+        }
+      }
+    });
+  }
+
+  // world tags
+  DATA.world.forEach(w=>{ const t=document.querySelector(`[data-wtag="${w.id}"]`); if(t) t.textContent='Currently: '+(state.world[w.id]?w.on:w.off); });
+
+  // energy gate text
+  const eg=$('energy-gate');
+  if(eg) eg.textContent = energyGateMet()? 'The way is open to you.' : 'Locked — needs a great spirit\'s regard, or the full chorus of past lives.';
+
+  // measures pool + perks
+  const mp=$('mpool');
+  if(mp){
+    if(!state.incarnation) mp.innerHTML='';
+    else {
+      const r=measuresRemaining();
+      let mnote=''; const md=PERKS[state.incarnation]&&PERKS[state.incarnation].measure;
+      if(md){ const nm=Object.keys(md)[0]; mnote=` · ${nm[0].toUpperCase()+nm.slice(1)} comes cheaper to you`; }
+      mp.innerHTML=`<span class="mp-lab">Training</span><span class="mp-num ${r<0?'over':''}">${r}</span><span class="mp-of">of ${MEASURES_POOL} to spread across the three${mnote}</span>`;
+    }
+  }
+  const pk=$('perks');
+  if(pk) pk.innerHTML = state.incarnation ? `<b>✦ Your Avatar's gift.</b> ${PERK_TEXT[state.incarnation]} These picks show a struck-through, reduced price as you build.` : '';
+
+  const kb=$('kbonus');
+  if(kb){
+    const fb=Math.floor(state.axes.knowledge/2);
+    const show=!!state.incarnation && fb>0;
+    kb.style.display=show?'':'none';
+    if(show) kb.innerHTML=`<b>Knowledge ${state.axes.knowledge}.</b> ${fb} of your other element${fb>1?'s':''} come${fb>1?'':'s'} with the first (basic) level free — set ${fb>1?'them':'it'} to Stirring at no cost, or push further and pay only the upgrade.`;
+  }
+
+  buildSummary();
+}
+
+function energyGateMet(){ return state.affinity==='regard' || state.pastlife==='chorus'; }
+
+
+/* ---------- interactions ---------- */
+function toggleSet(set,id){ set.has(id)?set.delete(id):set.add(id); }
+
+document.addEventListener('click',e=>{
+  const card=e.target.closest('[data-grp]');
+  const pip=e.target.closest('.pip');
+  if(card) handleCard(card);
+  else if(pip) handlePip(pip);
+});
+
+function handleCard(node){
+  if(node.classList.contains('dis')) return;
+  const grp=node.dataset.grp, id=node.dataset.id;
+  switch(grp){
+    case 'incarnation':
+      state.incarnation=id;
+      applyTheme(nativeEl());
+      // clear element choices that no longer apply
+      state.elements={};
+      buildElements(); buildSpecs();
+      break;
+    case 'world': state.world[id]=!state.world[id]; break;
+    case 'gender': state.gender=state.gender===id?null:id; break;
+    case 'temperament': state.temperament=state.temperament===id?null:id; break;
+    case 'identity': state.identity=state.identity===id?null:id; break;
+    case 'pastlife': state.pastlife=(state.pastlife===id && id!=='sealed')?'sealed':id; if(!energyGateMet()&&state.energy)state.energy=false; break;
+    case 'affinity': state.affinity=(state.affinity===id && id!=='none')?'none':id; if(!energyGateMet()&&state.energy)state.energy=false; break;
+    case 'boons': toggleSet(state.boons,id); break;
+    case 'mission': toggleSet(state.missions,id); break;
+    case 'companions': toggleSet(state.companions,id); break;
+    case 'home': state.home=state.home===id?null:id; break;
+    case 'items': toggleSet(state.items,id); break;
+    case 'money': state.money=state.money===id?null:id; break;
+    case 'allies': toggleSet(state.allies,id); break;
+    case 'avatarState': state.avatarState=(state.avatarState===id&&id!=='none')?'none':id; break;
+    case 'energy': if(energyGateMet()) state.energy=!state.energy; break;
+    case 'spec': state['spec_'+id]=!state['spec_'+id]; break;
+  }
+  pulse(); render();
+}
+function handlePip(pip){
+  if(pip.classList.contains('dis')) return;
+  if(pip.dataset.axis){
+    const ax=pip.dataset.axis, lvl=+pip.dataset.lvl;
+    state.axes[ax]= (state.axes[ax]===lvl)? lvl-1 : lvl;
+  } else if(pip.dataset.elem){
+    const el=pip.dataset.elem, tier=pip.dataset.tier;
+    state.elements[el]= (state.elements[el]===tier)? 'none' : tier;
+  }
+  pulse(); render();
+}
+
+function pulse(){ const o=$('orb'); o.classList.add('pulse'); setTimeout(()=>o.classList.remove('pulse'),250); }
+
+
+/* ---------- summary ---------- */
+function row(key,val){ return `<div class="s-line"><div class="s-key">${key}</div><div class="s-val">${val}</div></div>`; }
+function buildSummary(){
+  if(!state.incarnation){ $('summary').innerHTML=''; $('scroll-open').style.display=''; $('karma').hidden=true; return; }
+  $('scroll-open').style.display='none';
+  const I=DATA.incarnations.find(i=>i.id===state.incarnation);
+  const nat=nativeEl();
+  let h='';
+
+  const who = `<b>${I.name}</b> <span>— the Avatar reborn in ${EL_NAME[nat].toLowerCase()}${state.gender?', '+state.gender:''}${state.temperament?', '+state.temperament+' by nature':''}.</span>`;
+  h+=row('This life', who);
+  h+=row('Inherited fate', `<span>${I.desc}</span>`);
+
+  const eases=DATA.world.filter(w=>state.world[w.id]).map(w=>w.on);
+  if(eases.length) h+=row('On your terms', `<span>${eases.join(' · ')}</span>`);
+  if(state.identity) h+=row('To the world', `<span>${DATA.identities.find(i=>i.id===state.identity).label}</span>`);
+
+  const pl=DATA.pastlife.find(p=>p.id===state.pastlife);
+  const af=DATA.affinity.find(a=>a.id===state.affinity);
+  let spirit=[]; if(state.pastlife!=='sealed') spirit.push('past lives: '+pl.name.toLowerCase()); if(state.affinity!=='none') spirit.push(af.name.toLowerCase());
+  if(spirit.length) h+=row('The bridge', `<span>${spirit.join(' · ')}</span>`);
+
+  if(state.boons.size) h+=row('Gifts', `<span>${[...state.boons].map(id=>DATA.boons.find(b=>b.id===id).name).join(' · ')}</span>`);
+  if(state.missions.size) h+=row(state.missions.size>1?'Purposes':'Purpose', `<b style="font-size:1rem">${[...state.missions].map(id=>DATA.missions.find(m=>m.id===id).name).join(' · ')}</b>`);
+  if(state.companions.size) h+=row('Walks with you', `<span>${[...state.companions].map(id=>DATA.companions.find(c=>c.id===id).name).join(' · ')}</span>`);
+
+  let belong=[];
+  if(state.home) belong.push(DATA.home.find(x=>x.id===state.home).name);
+  if(state.money) belong.push(DATA.money.find(x=>x.id===state.money).name);
+  state.items.forEach(id=>belong.push(DATA.items.find(x=>x.id===id).name));
+  if(belong.length) h+=row('Carries', `<span>${belong.join(' · ')}</span>`);
+  if(state.allies.size) h+=row('Knows', `<span>${[...state.allies].map(id=>DATA.allies.find(a=>a.id===id).name).join(' · ')}</span>`);
+
+  // bending
+  const axBits=DATA.axes.filter(a=>state.axes[a.id]>0).map(a=>`${a.name} ${state.axes[a.id]}`);
+  if(axBits.length) h+=row('Measures', `<span>${axBits.join(' · ')}</span>`);
+  const elBits=Object.entries(state.elements).filter(([e,t])=>t!=='none').map(([e,t])=>`${EL_NAME[e]}: ${DATA.elemTiers.find(x=>x.id===t).name.toLowerCase()}`);
+  h+=row('Elements', `<span>${EL_NAME[nat]}: native & easy${elBits.length?' · '+elBits.join(' · '):''}</span>`);
+  const specBits=[]; ELEMENTS.forEach(el=>DATA.specs[el].forEach(sp=>{ if(state['spec_'+sp.id]) specBits.push(sp.name); }));
+  if(specBits.length) h+=row('Specialty', `<b style="font-size:1rem">${specBits.join(' · ')}</b>`);
+  let cap=[]; if(state.avatarState!=='none') cap.push('Avatar State — '+DATA.avatarState.find(a=>a.id===state.avatarState).name.toLowerCase()); if(state.energy) cap.push('Energybending');
+  if(cap.length) h+=row('The Avatar\'s own', `<span>${cap.join(' · ')}</span>`);
+
+  const remM=mainRemaining(), remT=measuresRemaining();
+  const ptsRow=(label,rem,total,sp)=> rem>=0
+    ? row(label, `<b>${rem}</b> <span>of ${total}</span>`)
+    : row(label, `<b style="color:var(--bad)">over by ${-rem}</b> <span>(spent ${sp} of ${total})</span>`);
+  h+=ptsRow('Points left', remM, baseBudget(), mainSpent(state));
+  h+=ptsRow('Training points', remT, MEASURES_POOL, measuresSpent(state));
+  let banner='';
+  if(remM<0||remT<0){
+    const bits=[]; if(remM<0) bits.push(`${-remM} past your main budget`); if(remT<0) bits.push(`${-remT} past your training`);
+    banner=`<div class="overbanner">You've reached ${bits.join(' and ')}. That's allowed — call it ambition — but you might trim a choice, or this is a soul better born to a harder age.</div>`;
+  }
+  $('summary').innerHTML=banner+h;
+
+  // karma / tone line
+  const dark = state['spec_blood'] || state.allies.has('bounty');
+  const k=$('karma');
+  if(dark){
+    k.hidden=false;
+    let lines=[];
+    if(state['spec_blood']) lines.push('You have taken up bloodbending — a power that bends will itself. The Dao remembers what we do with such things.');
+    if(state.allies.has('bounty')) lines.push('There is a price on your head; you will not lack for danger, or for the chance to prove what kind of Avatar you are.');
+    k.innerHTML=lines.join('<br>');
+  } else { k.hidden=true; }
+}
+
+/* ---------- tabs / nav ---------- */
+const TABS=[
+  {id:'prologue',ord:'',label:'Prologue'},
+  {id:'incarnation',ord:'一',label:'Incarnation'},
+  {id:'you',ord:'二',label:'You'},
+  {id:'path',ord:'三',label:'Path'},
+  {id:'belongings',ord:'四',label:'Belongings'},
+  {id:'bending',ord:'五',label:'Bending'},
+  {id:'scroll',ord:'',label:'Scroll'}
+];
+let cur=0;
+function buildTabs(){
+  $('tabs').innerHTML=TABS.map((t,i)=>`<button class="tab" data-i="${i}"><span class="ord">${t.ord}</span>${t.label}</button>`).join('');
+}
+function show(i){
+  cur=Math.max(0,Math.min(TABS.length-1,i));
+  document.querySelectorAll('.tab').forEach((t,idx)=>t.classList.toggle('active',idx===cur));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('show',p.dataset.tab===TABS[cur].id));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+$('tabs').addEventListener('click',e=>{ const b=e.target.closest('.tab'); if(b) show(+b.dataset.i); });
+document.addEventListener('click',e=>{
+  if(e.target.classList.contains('next')) show(cur+1);
+  if(e.target.classList.contains('prev')) show(cur-1);
+});
+
+/* ---------- reset ---------- */
+$('reset').addEventListener('click',()=>{
+  Object.assign(state,{
+    incarnation:null, world:{memory:false,burden:false,fore:false},
+    gender:null,temperament:null,identity:null,
+    pastlife:'sealed',affinity:'none',boons:new Set(),
+    missions:new Set(),companions:new Set(),
+    home:null,items:new Set(),money:null,allies:new Set(),
+    axes:{power:0,control:0,knowledge:0},elements:{},avatarState:'none',energy:false
+  });
+  Object.keys(state).filter(k=>k.startsWith('spec_')).forEach(k=>delete state[k]);
+  applyTheme('none');
+  buildElements(); buildSpecs();
+  render(); show(0);
+});
+
+/* ---------- init ---------- */
+buildTabs();
+buildStatics();
+applyTheme('none');
+render();
+show(0);
+</script>
+</body>
+</html>
