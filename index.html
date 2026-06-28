@@ -192,6 +192,7 @@ h3::before{content:"";flex:none;width:22px;height:2px;border-radius:2px;backgrou
 .opt.forbidden{opacity:.5;cursor:not-allowed;filter:grayscale(.45)}
 .opt.forbidden::after{content:'✕ not this life';position:absolute;top:-8px;left:14px;background:var(--bad);color:#fff;font-family:'Spectral';font-size:.62rem;letter-spacing:.04em;font-weight:600;padding:2px 8px;border-radius:9px;box-shadow:0 2px 6px rgba(178,58,38,.35)}
 .pip.base{box-shadow:inset 0 0 0 1px var(--accent)}
+.pip.locked{opacity:.38;cursor:not-allowed;filter:grayscale(.5)}
 .worldnotes .coda{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);text-align:center;font-style:italic;line-height:1.75;color:var(--ink)}
 .worldnotes .coda b{font-style:normal}
 .el-air,.el-water,.el-earth,.el-fire,[data-tab="prologue"] .tint{font-weight:600;font-family:'Fraunces',serif}
@@ -372,7 +373,7 @@ body:not([data-nation]) [data-tab="prologue"] .tint{animation:huecycle 16s ease-
     <p class="lead">You'll learn all four elements before the end — so none of this is about <i>whether</i>. It's about where you're already ahead, and the one specialty that makes your bending unmistakably yours.</p>
 
     <h3>The three measures</h3>
-    <p class="note">These run across everything you bend. Each starts at 1 — basic competence everywhere — and you draw on a shared pool to raise them, one point per level above the first. Your Avatar's gift makes one measure cheaper. Eight points is enough to carry two measures to mastery, or to spread broadly across all three — but never quite enough to master every one.</p>
+    <p class="note">These run across everything you bend. Each starts at 1 — basic competence everywhere — and you draw on a shared pool to raise them, one point per level above the first. Your Avatar's gift makes one of the three cheaper. You won't reach the fifth rung here, though: mastery isn't chosen at the start of a life, it's earned across one. What you set now is only where you begin — strong in two, perhaps, and growing into the rest.</p>
     <div class="mpool" id="mpool"></div>
     <div id="axes"></div>
 
@@ -506,7 +507,7 @@ const DATA = {
     {id:'wealth',cost:3,name:'A war chest',desc:'Enough to fund a cause, raise a crew, or buy a problem out of your way.'}
   ],
   allies:[
-    {id:'retainer',cost:1,name:'A loyal retainer',desc:'One person who is yours, all the way through. In this world that is worth more than an army.'},
+    {id:'retainer',cost:1,name:'Loyal companions',desc:'One devoted friend, or a small band of them — people who are yours all the way through. A Gaang of your own, if you like.'},
     {id:'network',cost:2,name:'A web of contacts',desc:'Eyes and ears in the right places. Word reaches you before it reaches your enemies.'},
     {id:'lotus-know',cost:1,name:'You know of the White Lotus',desc:'You know the old society of masters exists, and how to find a door. The rest you must earn.'},
     {id:'lotus-in',cost:3,name:'Initiate of the White Lotus',desc:'You are one of them — the cross-nation order of philosophers and grandmasters who serve no flag but balance.'},
@@ -559,7 +560,7 @@ const state = {
 function nativeEl(){ const i=DATA.incarnations.find(x=>x.id===state.incarnation); return i?i.el:null; }
 function baseBudget(){ const i=DATA.incarnations.find(x=>x.id===state.incarnation); return i?i.base:0; }
 
-const MEASURES_POOL=8;
+const MEASURES_POOL=6;
 const DISC_GROUPS={world:1,affinity:1,boons:1,companions:1,items:1,money:1,allies:1,spec:1};
 const PERKS={
   aang:   { affinity:1, companions:1, spec:{glide:1}, measure:{control:2} },
@@ -574,10 +575,10 @@ const PERK_TEXT={
   roku:'As Roku, wisdom, diplomacy, the White Lotus, and lightning all come a little easier.'
 };
 const PRESETS={
-  aang:{incarnation:'aang',name:'Aang',concept:'The Spirit-Walker',world:{},identity:'known',pastlife:'faint',affinity:'regard',boons:['heal'],companions:['bison','lemur'],missions:['balance','pacifist'],home:'temple',items:['heirloom'],money:'destitute',allies:['lotus-know'],specs:['project','glide'],elements:{water:'stirring',earth:'stirring'},avatarState:'mastered',energy:true,axes:{power:3,control:5,knowledge:5}},
-  korra:{incarnation:'korra',name:'Korra',concept:"The People's Avatar",world:{memory:true},identity:'known',pastlife:'sealed',affinity:'name',boons:[],companions:['naga'],missions:['spirit'],home:'family',items:['gadgets'],money:'modest',allies:['lotus-in'],specs:['ice','lightning'],elements:{fire:'competent',earth:'stirring'},avatarState:'partial',energy:false,axes:{power:5,control:3,knowledge:5}},
-  kyoshi:{incarnation:'kyoshi',name:'Kyoshi',concept:'Justice by Force',world:{},identity:'known',pastlife:'sealed',affinity:'none',boons:[],companions:['eel'],missions:['unfinished'],home:null,items:['weapon'],money:'wealth',allies:['network','retainer'],specs:['seismic','sand'],elements:{water:'stirring',fire:'stirring'},avatarState:'partial',energy:false,axes:{power:5,control:4,knowledge:4}},
-  roku:{incarnation:'roku',name:'Roku',concept:'The Diplomat Who Failed',world:{},identity:'known',pastlife:'faint',affinity:'none',boons:['strategist'],companions:['dragon'],missions:['unfinished'],home:'family',items:[],money:'destitute',allies:['lotus-in'],specs:['lightning','redirect'],elements:{water:'stirring',earth:'stirring'},avatarState:'involuntary',energy:false,axes:{power:3,control:5,knowledge:5}}
+  aang:{incarnation:'aang',name:'Aang',concept:'The Spirit-Walker',world:{},identity:'known',pastlife:'faint',affinity:'regard',boons:['heal'],companions:['bison','lemur'],missions:['balance','pacifist'],home:'temple',items:['heirloom'],money:'destitute',allies:['lotus-know'],specs:['project','glide'],elements:{water:'stirring',earth:'stirring'},avatarState:'mastered',energy:true,axes:{power:3,control:4,knowledge:4}},
+  korra:{incarnation:'korra',name:'Korra',concept:"The People's Avatar",world:{memory:true},identity:'known',pastlife:'sealed',affinity:'name',boons:[],companions:['naga'],missions:['spirit'],home:'family',items:['gadgets'],money:'modest',allies:['lotus-in'],specs:['ice','lightning'],elements:{fire:'competent',earth:'stirring'},avatarState:'partial',energy:false,axes:{power:4,control:3,knowledge:4}},
+  kyoshi:{incarnation:'kyoshi',name:'Kyoshi',concept:'Justice by Force',world:{},identity:'known',pastlife:'sealed',affinity:'none',boons:[],companions:['eel'],missions:['unfinished'],home:null,items:['weapon'],money:'wealth',allies:['network','retainer'],specs:['seismic','sand'],elements:{water:'stirring',fire:'stirring'},avatarState:'partial',energy:false,axes:{power:4,control:3,knowledge:4}},
+  roku:{incarnation:'roku',name:'Roku',concept:'The Diplomat Who Failed',world:{},identity:'known',pastlife:'faint',affinity:'none',boons:['strategist'],companions:['dragon'],missions:['unfinished'],home:'family',items:[],money:'destitute',allies:['lotus-in'],specs:['lightning','redirect'],elements:{water:'stirring',earth:'stirring'},avatarState:'involuntary',energy:false,axes:{power:3,control:4,knowledge:4}}
 };
 const FORBID={
   aang:[['spec','blood'],['spec','combustion']],
@@ -608,7 +609,7 @@ function discOf(inc,group,id){
   if(typeof g==='number') return g;
   return g[id]||0;
 }
-function eff(inc,group,id,cost){ return Math.max(0, cost - discOf(inc,group,id)); }
+function eff(inc,group,id,cost){ if(cost<0) return cost; return Math.max(0, cost - discOf(inc,group,id)); }
 
 function companionSpend(s){
   return [...s.companions].reduce((t,id)=>{ const c=DATA.companions.find(x=>x.id===id); return t+eff(s.incarnation,'companions',id,c.cost); },0);
@@ -863,6 +864,7 @@ function render(){
     const ax=p.dataset.axis, lvl=+p.dataset.lvl;
     p.classList.toggle('on', lvl<=state.axes[ax]);
     p.classList.toggle('base', lvl===1);
+    p.classList.toggle('locked', lvl===5);
     let dis=false;
     if(!state.incarnation) dis=true;
     p.classList.toggle('dis',dis);
@@ -983,6 +985,7 @@ function handlePip(pip){
   if(pip.classList.contains('dis')) return;
   if(pip.dataset.axis){
     const ax=pip.dataset.axis, lvl=+pip.dataset.lvl;
+    if(lvl>4) return;
     state.axes[ax]= (state.axes[ax]===lvl)? Math.max(1,lvl-1) : lvl;
   } else if(pip.dataset.elem){
     const el=pip.dataset.elem, tier=pip.dataset.tier;
