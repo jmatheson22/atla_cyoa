@@ -373,7 +373,7 @@ body:not([data-nation]) [data-tab="prologue"] .tint{animation:huecycle 16s ease-
     <p class="lead">You'll learn all four elements before the end — so none of this is about <i>whether</i>. It's about where you're already ahead, and the one specialty that makes your bending unmistakably yours.</p>
 
     <h3>The three measures</h3>
-    <p class="note">These run across everything you bend. Each starts at 1 — basic competence everywhere — and you draw on a shared pool to raise them, one point per level above the first. Your Avatar's gift makes one of the three cheaper. You won't reach the fifth rung here, though: mastery isn't chosen at the start of a life, it's earned across one. What you set now is only where you begin — strong in two, perhaps, and growing into the rest.</p>
+    <p class="note">These run across everything you bend. Each starts at 1 — basic competence everywhere — except the one that defines your Avatar, which starts at 2 and can't be set aside. Beyond that you raise them from a shared pool, a flat point per level. The pool is short on purpose: carry one measure to mastery and the others stay lean, or spread your points and fall short of the summit everywhere. You cannot be a prodigy at all three. That is the choice.</p>
     <div class="mpool" id="mpool"></div>
     <div id="axes"></div>
 
@@ -560,7 +560,7 @@ const state = {
 function nativeEl(){ const i=DATA.incarnations.find(x=>x.id===state.incarnation); return i?i.el:null; }
 function baseBudget(){ const i=DATA.incarnations.find(x=>x.id===state.incarnation); return i?i.base:0; }
 
-const MEASURES_POOL=6;
+const MEASURES_POOL=5;
 const DISC_GROUPS={world:1,affinity:1,boons:1,companions:1,items:1,money:1,allies:1,spec:1};
 const PERKS={
   aang:   { affinity:1, companions:1, spec:{glide:1}, measure:{control:2} },
@@ -575,10 +575,10 @@ const PERK_TEXT={
   roku:'As Roku, wisdom, diplomacy, the White Lotus, and lightning all come a little easier.'
 };
 const PRESETS={
-  aang:{incarnation:'aang',name:'Aang',concept:'The Spirit-Walker',world:{},identity:'known',pastlife:'faint',affinity:'regard',boons:['heal'],companions:['bison','lemur'],missions:['balance','pacifist'],home:'temple',items:['heirloom'],money:'destitute',allies:['lotus-know'],specs:['project','glide'],elements:{water:'stirring',earth:'stirring'},avatarState:'mastered',energy:true,axes:{power:3,control:4,knowledge:4}},
-  korra:{incarnation:'korra',name:'Korra',concept:"The People's Avatar",world:{memory:true},identity:'known',pastlife:'sealed',affinity:'name',boons:[],companions:['naga'],missions:['spirit'],home:'family',items:['gadgets'],money:'modest',allies:['lotus-in'],specs:['ice','lightning'],elements:{fire:'competent',earth:'stirring'},avatarState:'partial',energy:false,axes:{power:4,control:3,knowledge:4}},
-  kyoshi:{incarnation:'kyoshi',name:'Kyoshi',concept:'Justice by Force',world:{},identity:'known',pastlife:'sealed',affinity:'none',boons:[],companions:['eel'],missions:['unfinished'],home:null,items:['weapon'],money:'wealth',allies:['network','retainer'],specs:['seismic','sand'],elements:{water:'stirring',fire:'stirring'},avatarState:'partial',energy:false,axes:{power:4,control:3,knowledge:4}},
-  roku:{incarnation:'roku',name:'Roku',concept:'The Diplomat Who Failed',world:{},identity:'known',pastlife:'faint',affinity:'none',boons:['strategist'],companions:['dragon'],missions:['unfinished'],home:'family',items:[],money:'destitute',allies:['lotus-in'],specs:['lightning','redirect'],elements:{water:'stirring',earth:'stirring'},avatarState:'involuntary',energy:false,axes:{power:3,control:4,knowledge:4}}
+  aang:{incarnation:'aang',name:'Aang',concept:'The Spirit-Walker',world:{},identity:'known',pastlife:'faint',affinity:'regard',boons:['heal'],companions:['bison','lemur'],missions:['balance','pacifist'],home:'temple',items:['heirloom'],money:'destitute',allies:['lotus-know'],specs:['project','glide'],elements:{water:'stirring',earth:'stirring'},avatarState:'mastered',energy:true,axes:{power:1,control:4,knowledge:4}},
+  korra:{incarnation:'korra',name:'Korra',concept:"The People's Avatar",world:{memory:true},identity:'known',pastlife:'sealed',affinity:'name',boons:[],companions:['naga'],missions:['spirit'],home:'family',items:['gadgets'],money:'modest',allies:['lotus-in'],specs:['ice','lightning'],elements:{fire:'competent',earth:'stirring'},avatarState:'partial',energy:false,axes:{power:4,control:1,knowledge:4}},
+  kyoshi:{incarnation:'kyoshi',name:'Kyoshi',concept:'Justice by Force',world:{},identity:'known',pastlife:'sealed',affinity:'none',boons:[],companions:['eel'],missions:['unfinished'],home:null,items:['weapon'],money:'wealth',allies:['network','retainer'],specs:['seismic','sand'],elements:{water:'stirring',fire:'stirring'},avatarState:'partial',energy:false,axes:{power:4,control:1,knowledge:4}},
+  roku:{incarnation:'roku',name:'Roku',concept:'The Diplomat Who Failed',world:{},identity:'known',pastlife:'faint',affinity:'none',boons:['strategist'],companions:['dragon'],missions:['unfinished'],home:'family',items:[],money:'destitute',allies:['lotus-in'],specs:['lightning','redirect'],elements:{water:'stirring',earth:'stirring'},avatarState:'involuntary',energy:false,axes:{power:1,control:3,knowledge:5}}
 };
 const FORBID={
   aang:[['spec','blood'],['spec','combustion']],
@@ -641,9 +641,11 @@ function mainSpent(s){
   if(s.energy) t+=DATA.energy.cost;
   return t;
 }
+function floorOf(inc,axId){ const m=PERKS[inc]&&PERKS[inc].measure; return (m&&(axId in m))?2:1; }
+function applyFloors(){ DATA.axes.forEach(ax=>{ const fl=floorOf(state.incarnation,ax.id); if(state.axes[ax.id]<fl) state.axes[ax.id]=fl; }); }
 function measuresSpent(s){
-  const inc=s.incarnation; let t=0;
-  DATA.axes.forEach(ax=>{ const base=s.axes[ax.id]; const d=(PERKS[inc]&&PERKS[inc].measure&&PERKS[inc].measure[ax.id])||0; t+=Math.max(0,(base-1)-d); });
+  let t=0;
+  DATA.axes.forEach(ax=>{ t+=Math.max(0, s.axes[ax.id]-floorOf(s.incarnation,ax.id)); });
   return t;
 }
 function mainRemaining(){ return baseBudget()-mainSpent(state); }
@@ -863,8 +865,7 @@ function render(){
   document.querySelectorAll('.pip[data-axis]').forEach(p=>{
     const ax=p.dataset.axis, lvl=+p.dataset.lvl;
     p.classList.toggle('on', lvl<=state.axes[ax]);
-    p.classList.toggle('base', lvl===1);
-    p.classList.toggle('locked', lvl===5);
+    p.classList.toggle('base', lvl<=floorOf(state.incarnation,ax));
     let dis=false;
     if(!state.incarnation) dis=true;
     p.classList.toggle('dis',dis);
@@ -916,7 +917,7 @@ function render(){
     else {
       const r=measuresRemaining();
       let mnote=''; const md=PERKS[state.incarnation]&&PERKS[state.incarnation].measure;
-      if(md){ const nm=Object.keys(md)[0]; mnote=` · ${nm[0].toUpperCase()+nm.slice(1)} comes cheaper to you`; }
+      if(md){ const nm=Object.keys(md)[0]; mnote=` · ${nm[0].toUpperCase()+nm.slice(1)} starts a step ahead for you`; }
       mp.innerHTML=`<span class="mp-lab">Training</span><span class="mp-num ${r<0?'over':''}">${r}</span><span class="mp-of">of ${MEASURES_POOL} to spread across the three${mnote}</span>`;
     }
   }
@@ -955,6 +956,7 @@ function handleCard(node){
       const wasNew = state.incarnation!==id;
       state.incarnation=id;
       purgeForbidden();
+      applyFloors();
       applyTheme(nativeEl());
       // clear element choices that no longer apply
       state.elements={};
@@ -985,8 +987,9 @@ function handlePip(pip){
   if(pip.classList.contains('dis')) return;
   if(pip.dataset.axis){
     const ax=pip.dataset.axis, lvl=+pip.dataset.lvl;
-    if(lvl>4) return;
-    state.axes[ax]= (state.axes[ax]===lvl)? Math.max(1,lvl-1) : lvl;
+    const fl=floorOf(state.incarnation,ax);
+    const nv=(state.axes[ax]===lvl)? lvl-1 : lvl;
+    state.axes[ax]=Math.max(fl,nv);
   } else if(pip.dataset.elem){
     const el=pip.dataset.elem, tier=pip.dataset.tier;
     state.elements[el]= (state.elements[el]===tier)? 'none' : tier;
@@ -1124,6 +1127,7 @@ function loadPreset(id){
   state.energy=!!p.energy;
   state.axes=Object.assign({power:1,control:1,knowledge:1},p.axes||{});
   purgeForbidden();
+  applyFloors();
   applyTheme(nativeEl());
   buildElements(); buildSpecs();
   render(); show(TABS.findIndex(t=>t.id==='incarnation'));
@@ -1148,7 +1152,7 @@ function closePresetModal(){ $('presetModal').hidden=true; pendingPreset=null; }
 function startFromScratch(){
   const inc=pendingPreset || state.incarnation;
   resetState();
-  if(inc){ state.incarnation=inc; purgeForbidden(); applyTheme(nativeEl()); buildElements(); buildSpecs(); }
+  if(inc){ state.incarnation=inc; purgeForbidden(); applyFloors(); applyTheme(nativeEl()); buildElements(); buildSpecs(); }
   closePresetModal();
   render(); show(TABS.findIndex(t=>t.id==='incarnation'));
 }
