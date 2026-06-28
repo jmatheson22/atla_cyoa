@@ -1142,9 +1142,16 @@ function openPresetModal(id){
   $('presetModal').hidden=false;
 }
 function closePresetModal(){ $('presetModal').hidden=true; pendingPreset=null; }
+function startFromScratch(){
+  const inc=pendingPreset || state.incarnation;
+  resetState();
+  if(inc){ state.incarnation=inc; purgeForbidden(); applyTheme(nativeEl()); buildElements(); buildSpecs(); }
+  closePresetModal();
+  render(); show(TABS.findIndex(t=>t.id==='incarnation'));
+}
 $('pmLoad').addEventListener('click',()=>{ if(pendingPreset) loadPreset(pendingPreset); closePresetModal(); });
-$('pmCancel').addEventListener('click',closePresetModal);
-$('presetModal').addEventListener('click',e=>{ if(e.target.id==='presetModal') closePresetModal(); });
+$('pmCancel').addEventListener('click',startFromScratch);
+$('presetModal').addEventListener('click',e=>{ if(e.target.id==='presetModal') startFromScratch(); });
 
 /* ---------- init ---------- */
 buildTabs();
