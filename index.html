@@ -59,11 +59,12 @@ h1 .turn{display:block;color:var(--accent-deep);font-style:italic;transition:col
   background:linear-gradient(160deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:16px;
   padding:11px 15px;margin:6px 0 22px;box-shadow:0 10px 30px rgba(60,44,20,.18)}
 .orb-wrap{display:flex;align-items:center;gap:14px}
+@property --fill{syntax:'<percentage>';inherits:false;initial-value:100%}
 .orb{position:relative;width:58px;height:58px;border-radius:50%;flex:none;display:grid;place-items:center;
-  background:radial-gradient(circle at 34% 28%, rgba(255,255,255,.92), transparent 42%),
-            conic-gradient(from 210deg, var(--accent), var(--accent-deep), var(--accent));
+  background:radial-gradient(circle at 33% 26%, rgba(255,255,255,.5), transparent 46%),
+            linear-gradient(to top, var(--accent-deep) 0%, var(--accent) var(--fill,100%), rgba(70,52,26,.24) var(--fill,100%), rgba(70,52,26,.12) 100%);
   box-shadow:0 0 0 4px var(--panel),0 0 22px var(--glow),inset 0 -7px 13px rgba(0,0,0,.25);
-  color:#fff;font-family:'Fraunces',serif;font-weight:600;font-size:1.6rem;text-shadow:0 1px 4px rgba(0,0,0,.45);transition:transform .25s ease}
+  color:#fff;font-family:'Fraunces',serif;font-weight:600;font-size:1.6rem;text-shadow:0 1px 4px rgba(0,0,0,.5);transition:transform .25s ease, --fill .45s ease}
 .orb .crest-mini{position:absolute;inset:0;display:grid;place-items:center;opacity:.24;color:#fff;pointer-events:none}
 .orb .crest-mini svg{width:72%;height:72%}
 .orb .num{position:relative;z-index:1}
@@ -173,6 +174,50 @@ h3::before{content:"";flex:none;width:22px;height:2px;border-radius:2px;backgrou
 .cost.freecost s{opacity:.55;font-weight:400;margin-right:3px}
 .opt.freebie{box-shadow:0 0 0 1px #3f7a4a inset}
 .opt.freebie::after{content:'✦ mastery — free';position:absolute;top:-8px;left:14px;background:#3f7a4a;color:#fff;font-family:'Spectral';font-size:.64rem;letter-spacing:.04em;font-weight:600;padding:2px 8px;border-radius:9px;box-shadow:0 2px 7px rgba(63,122,74,.4)}
+.presets{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px}
+@media(max-width:620px){.presets{grid-template-columns:1fr}}
+.preset{display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer;font-family:'Spectral';background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:transform .18s ease,box-shadow .18s ease;color:var(--ink)}
+.preset:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(60,44,20,.14)}
+.preset .p-emblem{width:40px;height:40px;flex:none;color:#fff;border-radius:10px;display:grid;place-items:center}
+.preset .p-emblem svg{width:72%;height:72%}
+.preset.n-air .p-emblem{background:linear-gradient(135deg,var(--air),var(--air-d))}
+.preset.n-water .p-emblem{background:linear-gradient(135deg,var(--water),var(--water-d))}
+.preset.n-earth .p-emblem{background:linear-gradient(135deg,var(--earth),var(--earth-d))}
+.preset.n-fire .p-emblem{background:linear-gradient(135deg,var(--fire),var(--fire-d))}
+.preset .p-txt{display:flex;flex-direction:column;line-height:1.2}
+.preset .p-txt b{font-family:'Fraunces',serif;font-size:1.12rem}
+.preset .p-txt > span{font-size:.85rem;color:var(--ink-soft);font-style:italic}
+.opt.legendary{box-shadow:0 4px 20px rgba(150,116,50,.20)}
+.opt.legendary::before{content:'';position:absolute;inset:-1px;border-radius:12px;padding:2px;background:linear-gradient(135deg,#e3c478,#a8842f,#6f5320,#e3c478);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.opt.forbidden{opacity:.5;cursor:not-allowed;filter:grayscale(.45)}
+.opt.forbidden::after{content:'✕ not this life';position:absolute;top:-8px;left:14px;background:var(--bad);color:#fff;font-family:'Spectral';font-size:.62rem;letter-spacing:.04em;font-weight:600;padding:2px 8px;border-radius:9px;box-shadow:0 2px 6px rgba(178,58,38,.35)}
+.pip.base{box-shadow:inset 0 0 0 1px var(--accent)}
+.worldnotes .coda{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);text-align:center;font-style:italic;line-height:1.75;color:var(--ink)}
+.worldnotes .coda b{font-style:normal}
+.el-air,.el-water,.el-earth,.el-fire,[data-tab="prologue"] .tint{font-weight:600;font-family:'Fraunces',serif}
+.el-air{color:var(--air-d)}.el-water{color:var(--water-d)}.el-earth{color:var(--earth-d)}.el-fire{color:var(--fire-d)}
+[data-tab="prologue"] .tint{color:var(--accent-deep)}
+body:not([data-nation]) [data-tab="prologue"] .tint{animation:huecycle 16s ease-in-out infinite}
+@keyframes huecycle{0%,100%{color:var(--air-d)}25%{color:var(--water-d)}50%{color:var(--earth-d)}75%{color:var(--fire-d)}}
+.modal-bg{position:fixed;inset:0;background:rgba(40,28,14,.55);backdrop-filter:blur(3px);display:grid;place-items:center;z-index:50;padding:20px}
+.modal-bg[hidden]{display:none}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:420px;width:100%;padding:26px 26px 22px;text-align:center;box-shadow:0 18px 50px rgba(40,28,14,.4);animation:pop .22s ease}
+@keyframes pop{from{transform:translateY(8px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.modal-emblem{width:62px;height:62px;margin:0 auto 12px;border-radius:14px;display:grid;place-items:center;color:#fff}
+.modal-emblem svg{width:70%;height:70%}
+.modal-emblem.n-air{background:linear-gradient(135deg,var(--air),var(--air-d))}
+.modal-emblem.n-water{background:linear-gradient(135deg,var(--water),var(--water-d))}
+.modal-emblem.n-earth{background:linear-gradient(135deg,var(--earth),var(--earth-d))}
+.modal-emblem.n-fire{background:linear-gradient(135deg,var(--fire),var(--fire-d))}
+.modal h3{font-family:'Fraunces',serif;font-size:1.4rem;margin:0 0 2px}
+.pm-concept{font-style:italic;color:var(--ink-soft);margin:0 0 10px}
+.modal .note{margin:0 0 18px}
+.modal-btns{display:flex;gap:10px;justify-content:center}
+.modal-btns button{font-family:'Spectral';font-size:.95rem;padding:9px 18px;border-radius:10px;cursor:pointer;border:1px solid var(--line);transition:background .15s ease}
+.m-cancel{background:transparent;color:var(--accent-deep);border-color:var(--accent);font-weight:600}
+.m-cancel:hover{background:var(--accent-soft)}
+.m-load{background:var(--accent);color:#fff;border-color:var(--accent-deep);font-weight:600}
+.m-load:hover{background:var(--accent-deep)}
 .perks{font-style:italic;color:var(--accent-deep);background:var(--accent-soft);border:1px solid var(--line-soft);border-radius:11px;padding:11px 15px;margin:14px 0 2px;font-size:.97rem}
 .mpool{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;background:linear-gradient(160deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:11px;padding:10px 15px;margin-bottom:12px}
 .mpool .mp-lab{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft)}
@@ -240,14 +285,13 @@ h3::before{content:"";flex:none;width:22px;height:2px;border-radius:2px;backgrou
   <!-- PROLOGUE -->
   <section class="panel" data-tab="prologue">
     <h2>Before you begin</h2>
-    <p class="lead">A few truths about this world — less a rulebook than the things a wise traveler would want you to know before you set out.</p>
+    <p class="lead">The Avatar is one soul, born again and again. In every life you are raised by different hands, shaped by a different age, and asked a different question. Yet every road leads to the same destination: in time, you will master all four elements. That has never been the choice. What changes is <span class="tint">who you become before you do</span>.</p>
     <div class="worldnotes">
-      <p>You are the <b>Avatar</b>: the one soul reborn across the cycle, the bridge between the physical and spirit worlds. You will master all four elements in time — that was never in question. What you choose here is not <i>whether</i>, but <i>where you stand at the start</i>, and what kind of person carries the weight.</p>
-      <p><b>The world is a body.</b> When one nation dominates, everyone sickens — the conquerors included. Balance is not a slogan; it is health.</p>
-      <p><b>Your bending bends the way you live.</b> A gentle person's fire looks nothing like a cruel one's. Power reveals character; it does not replace it.</p>
-      <p><b>The spirit world is a relationship,</b> not a resource to be mined. It remembers how it was treated.</p>
-      <p><b>Vengeance and raw power chase their own tails.</b> The cycle breaks for the ones who learn to set something down.</p>
-      <p>You are the most powerful person alive, and still just a person who can be frightened, and wrong, and kind. That is the whole problem, and the whole point.</p>
+      <p>The world is not divided into four nations so much as four ways of living. <span class="el-air">Air teaches freedom.</span> <span class="el-water">Water teaches change.</span> <span class="el-earth">Earth teaches endurance.</span> <span class="el-fire">Fire teaches life and ambition.</span> None is complete alone. When one forgets the others, the whole world falls <span class="tint">out of balance</span>.</p>
+      <p>Power does not make a person into someone new. It only gives them more ways to become who they already are. One Avatar heals with water where another drowns. One lights a hearth with fire where another starts a war. <span class="tint">The element is never the whole story.</span></p>
+      <p>The spirits are not another kingdom to conquer, nor a mystery to solve. They are <span class="tint">neighbors</span>. Some are gentle. Some are dangerous. Like people, they remember kindness, and they remember cruelty.</p>
+      <p>Not every battle should be won. Every Avatar inherits old mistakes, old enemies, and old griefs. Some burdens must be carried. Others are only waiting for someone wise enough to <span class="tint">set them down</span>.</p>
+      <p class="coda">You will be the most powerful person in the world.<br>You will also be young, uncertain, sometimes afraid, and sometimes wrong.<br><b class="tint">The Avatar has always been both.</b></p>
     </div>
     <div class="nav"><span></span><button class="next">Choose your incarnation →</button></div>
   </section>
@@ -328,7 +372,7 @@ h3::before{content:"";flex:none;width:22px;height:2px;border-radius:2px;backgrou
     <p class="lead">You'll learn all four elements before the end — so none of this is about <i>whether</i>. It's about where you're already ahead, and the one specialty that makes your bending unmistakably yours.</p>
 
     <h3>The three measures</h3>
-    <p class="note">These run across everything you bend, and draw on their own pool — ten training points, one per level (0–5 each). Spread them how you like: five in one leaves five for another, and nothing for the third. No one is legendary at all three.</p>
+    <p class="note">These run across everything you bend. Each starts at 1 — basic competence everywhere — and you draw on a shared pool to raise them, one point per level above the first. Your Avatar's gift makes one measure cheaper. Eight points is enough to carry two measures to mastery, or to spread broadly across all three — but never quite enough to master every one.</p>
     <div class="mpool" id="mpool"></div>
     <div id="axes"></div>
 
@@ -357,6 +401,19 @@ h3::before{content:"";flex:none;width:22px;height:2px;border-radius:2px;backgrou
     </div>
     <div class="nav"><button class="prev ghost">← Back</button><span></span></div>
   </section>
+
+  <div class="modal-bg" id="presetModal" hidden>
+    <div class="modal">
+      <div class="modal-emblem" id="pmEmblem"></div>
+      <h3 id="pmTitle"></h3>
+      <p class="pm-concept" id="pmDesc"></p>
+      <p class="note">Use a ready-made, balanced build for this Avatar — then change anything you like. Or start blank and choose every detail yourself.</p>
+      <div class="modal-btns">
+        <button class="m-cancel" id="pmCancel">Start from scratch</button>
+        <button class="m-load" id="pmLoad">Use the example build</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -370,10 +427,10 @@ const NATION = {
 
 const DATA = {
   incarnations:[
-    {id:'aang', name:'Aang', el:'air', base:36, desc:'Wake after a hundred years of ice to a world that burned in your sleep, your people gone to ash. The Fire Nation hunts you and a comet is coming. The heaviest road — and the one most worth walking.'},
-    {id:'korra',name:'Korra', el:'water', base:28, desc:'Born in the modern age and named the Avatar at four — raised behind walls by those who meant to keep you safe. The world is louder now: equalists, civil war, the portals straining open.'},
-    {id:'roku', name:'Roku', el:'fire', base:22, desc:'Born comfortable and powerful, best friend to the boy who will one day start the war. The calm before the storm, and the quiet, terrible chance to cut the seed before it grows.'},
-    {id:'kyoshi',name:'Kyoshi', el:'earth', base:19, desc:'A long, stable age. You begin poor and abandoned, before the mantle finds you — but no war presses, no comet looms. Only your own two centuries, and what you choose to do with them.'}
+    {id:'aang', name:'Aang', el:'air', base:33, desc:'Wake after a hundred years of ice to a world that burned in your sleep, your people gone to ash. The Fire Nation hunts you and a comet is coming. The heaviest road — and the one most worth walking.'},
+    {id:'korra',name:'Korra', el:'water', base:25, desc:'Born in the modern age and named the Avatar at four — raised behind walls by those who meant to keep you safe. The world is louder now: equalists, civil war, the portals straining open.'},
+    {id:'roku', name:'Roku', el:'fire', base:19, desc:'Born comfortable and powerful, best friend to the boy who will one day start the war. The calm before the storm, and the quiet, terrible chance to cut the seed before it grows.'},
+    {id:'kyoshi',name:'Kyoshi', el:'earth', base:16, desc:'A long, stable age. You begin poor and abandoned, before the mantle finds you — but no war presses, no comet looms. Only your own two centuries, and what you choose to do with them.'}
   ],
   world:[
     {id:'memory', cost:5, name:'You remember our world', off:'Wholly of this world', on:'The mind of another world',
@@ -481,7 +538,7 @@ const DATA = {
     {id:'partial',cost:7,name:'Half-mastered',desc:'You can reach for it, sometimes, and mostly come back yourself.'},
     {id:'mastered',cost:10,name:'Mastered',desc:'It comes when you call and leaves when you bid it. The full weight of every life you\'ve lived, in your hands.'}
   ],
-  energy:{id:'energy',cost:10,name:'Energybending',desc:'To bend the energy within another — to take a power, or restore it. The oldest and most dangerous art, and it asks an unbendable spirit of its own. Requires a great spirit\'s regard, or the full chorus of your past lives.'}
+  energy:{id:'energy',cost:6,name:'Energybending',desc:'To bend the energy within another — to take a power, or restore it. The oldest and most dangerous art, and it asks an unbendable spirit of its own. Requires a great spirit\'s regard, or the full chorus of your past lives.'}
 };
 
 const EL_NAME = {air:'Air',water:'Water',earth:'Earth',fire:'Fire'};
@@ -494,7 +551,7 @@ const state = {
   pastlife:'sealed', affinity:'none', boons:new Set(),
   missions:new Set(), companions:new Set(),
   home:null, items:new Set(), money:null, allies:new Set(),
-  axes:{power:0,control:0,knowledge:0},
+  axes:{power:1,control:1,knowledge:1},
   elements:{}, avatarState:'none', energy:false
 };
 
@@ -502,7 +559,7 @@ const state = {
 function nativeEl(){ const i=DATA.incarnations.find(x=>x.id===state.incarnation); return i?i.el:null; }
 function baseBudget(){ const i=DATA.incarnations.find(x=>x.id===state.incarnation); return i?i.base:0; }
 
-const MEASURES_POOL=10;
+const MEASURES_POOL=8;
 const DISC_GROUPS={world:1,affinity:1,boons:1,companions:1,items:1,money:1,allies:1,spec:1};
 const PERKS={
   aang:   { affinity:1, companions:1, spec:{glide:1}, measure:{control:2} },
@@ -516,6 +573,35 @@ const PERK_TEXT={
   korra:'As Korra, physical power, modern invention, and aggressive bending all come a little easier.',
   roku:'As Roku, wisdom, diplomacy, the White Lotus, and lightning all come a little easier.'
 };
+const PRESETS={
+  aang:{incarnation:'aang',name:'Aang',concept:'The Spirit-Walker',world:{},identity:'known',pastlife:'faint',affinity:'regard',boons:['heal'],companions:['bison','lemur'],missions:['balance','pacifist'],home:'temple',items:['heirloom'],money:'destitute',allies:['lotus-know'],specs:['project','glide'],elements:{water:'stirring',earth:'stirring'},avatarState:'mastered',energy:true,axes:{power:3,control:5,knowledge:5}},
+  korra:{incarnation:'korra',name:'Korra',concept:"The People's Avatar",world:{memory:true},identity:'known',pastlife:'sealed',affinity:'name',boons:[],companions:['naga'],missions:['spirit'],home:'family',items:['gadgets'],money:'modest',allies:['lotus-in'],specs:['ice','lightning'],elements:{fire:'competent',earth:'stirring'},avatarState:'partial',energy:false,axes:{power:5,control:3,knowledge:5}},
+  kyoshi:{incarnation:'kyoshi',name:'Kyoshi',concept:'Justice by Force',world:{},identity:'known',pastlife:'sealed',affinity:'none',boons:[],companions:['eel'],missions:['unfinished'],home:null,items:['weapon'],money:'wealth',allies:['network','retainer'],specs:['seismic','sand'],elements:{water:'stirring',fire:'stirring'},avatarState:'partial',energy:false,axes:{power:5,control:4,knowledge:4}},
+  roku:{incarnation:'roku',name:'Roku',concept:'The Diplomat Who Failed',world:{},identity:'known',pastlife:'faint',affinity:'none',boons:['strategist'],companions:['dragon'],missions:['unfinished'],home:'family',items:[],money:'destitute',allies:['lotus-in'],specs:['lightning','redirect'],elements:{water:'stirring',earth:'stirring'},avatarState:'involuntary',energy:false,axes:{power:3,control:5,knowledge:5}}
+};
+const FORBID={
+  aang:[['spec','blood'],['spec','combustion']],
+  korra:[['pastlife','chorus']],
+  roku:[['spec','blood']],
+  kyoshi:[['world','burden']]
+};
+const LEGENDARY=[['spec','blood'],['spec','combustion'],['spec','lava'],['pastlife','chorus'],['energy','energy'],['companions','dragon'],['companions','spirit']];
+function isForbidden(inc,group,id){ return (FORBID[inc]||[]).some(p=>p[0]===group&&p[1]===id); }
+function purgeForbidden(){
+  const inc=state.incarnation; if(!inc) return;
+  (FORBID[inc]||[]).forEach(p=>{ const g=p[0],id=p[1];
+    if(g==='spec') delete state['spec_'+id];
+    else if(g==='pastlife'){ if(state.pastlife===id) state.pastlife='sealed'; }
+    else if(g==='affinity'){ if(state.affinity===id) state.affinity='none'; }
+    else if(g==='world'){ state.world[id]=false; }
+    else if(g==='boons') state.boons.delete(id);
+    else if(g==='companions') state.companions.delete(id);
+    else if(g==='allies') state.allies.delete(id);
+  });
+}
+function markLegendary(){
+  LEGENDARY.forEach(p=>{ const n=document.querySelector(`[data-grp="${p[0]}"][data-id="${p[1]}"]`); if(n) n.classList.add('legendary'); });
+}
 function discOf(inc,group,id){
   const p=PERKS[inc]; if(!p) return 0;
   const g=p[group]; if(g==null) return 0;
@@ -556,7 +642,7 @@ function mainSpent(s){
 }
 function measuresSpent(s){
   const inc=s.incarnation; let t=0;
-  DATA.axes.forEach(ax=>{ const base=s.axes[ax.id]; const d=(PERKS[inc]&&PERKS[inc].measure&&PERKS[inc].measure[ax.id])||0; t+=Math.max(0,base-d); });
+  DATA.axes.forEach(ax=>{ const base=s.axes[ax.id]; const d=(PERKS[inc]&&PERKS[inc].measure&&PERKS[inc].measure[ax.id])||0; t+=Math.max(0,(base-1)-d); });
   return t;
 }
 function mainRemaining(){ return baseBudget()-mainSpent(state); }
@@ -689,6 +775,7 @@ function buildStatics(){
       <div class="opt-top"><span class="opt-name">${DATA.energy.name}</span>${costBadge(DATA.energy.cost)}</div>
       <div class="opt-desc">${DATA.energy.desc}</div>
       <div class="tag" id="energy-gate"></div></div>`;
+
 }
 
 function buildElements(){
@@ -719,10 +806,15 @@ function render(){
   // orb
   $('orbNum').textContent = state.incarnation ? rem : '—';
   $('orb').classList.toggle('over', !!state.incarnation && rem<0);
+  { const tot=baseBudget(); const pct=(state.incarnation&&tot>0)?Math.max(0,Math.min(100,rem/tot*100)):100; $('orb').style.setProperty('--fill',pct+'%'); }
   $('who').textContent = state.incarnation ? DATA.incarnations.find(i=>i.id===state.incarnation).name : 'Choose an incarnation';
 
   document.querySelectorAll('[data-grp]').forEach(node=>{
     const grp=node.dataset.grp, id=node.dataset.id;
+    if(state.incarnation && isForbidden(state.incarnation,grp,id)){
+      node.classList.remove('sel','perked','freebie'); node.classList.add('dis','forbidden'); return;
+    }
+    node.classList.remove('forbidden');
     let sel=false;
     switch(grp){
       case 'incarnation': sel=state.incarnation===id; break;
@@ -770,6 +862,7 @@ function render(){
   document.querySelectorAll('.pip[data-axis]').forEach(p=>{
     const ax=p.dataset.axis, lvl=+p.dataset.lvl;
     p.classList.toggle('on', lvl<=state.axes[ax]);
+    p.classList.toggle('base', lvl===1);
     let dis=false;
     if(!state.incarnation) dis=true;
     p.classList.toggle('dis',dis);
@@ -789,6 +882,7 @@ function render(){
   });
 
   // free specialization of each mastered element (priciest selected is comped)
+  markLegendary();
   if(state.incarnation){
     const natEl2=nativeEl();
     ELEMENTS.forEach(el=>{
@@ -855,13 +949,17 @@ function handleCard(node){
   if(node.classList.contains('dis')) return;
   const grp=node.dataset.grp, id=node.dataset.id;
   switch(grp){
-    case 'incarnation':
+    case 'incarnation': {
+      const wasNew = state.incarnation!==id;
       state.incarnation=id;
+      purgeForbidden();
       applyTheme(nativeEl());
       // clear element choices that no longer apply
       state.elements={};
       buildElements(); buildSpecs();
+      if(wasNew) openPresetModal(id);
       break;
+    }
     case 'world': state.world[id]=!state.world[id]; break;
     case 'gender': state.gender=state.gender===id?null:id; break;
     case 'temperament': state.temperament=state.temperament===id?null:id; break;
@@ -885,7 +983,7 @@ function handlePip(pip){
   if(pip.classList.contains('dis')) return;
   if(pip.dataset.axis){
     const ax=pip.dataset.axis, lvl=+pip.dataset.lvl;
-    state.axes[ax]= (state.axes[ax]===lvl)? lvl-1 : lvl;
+    state.axes[ax]= (state.axes[ax]===lvl)? Math.max(1,lvl-1) : lvl;
   } else if(pip.dataset.elem){
     const el=pip.dataset.elem, tier=pip.dataset.tier;
     state.elements[el]= (state.elements[el]===tier)? 'none' : tier;
@@ -991,20 +1089,62 @@ document.addEventListener('click',e=>{
 });
 
 /* ---------- reset ---------- */
-$('reset').addEventListener('click',()=>{
+function resetState(){
   Object.assign(state,{
     incarnation:null, world:{memory:false,burden:false,fore:false},
     gender:null,temperament:null,identity:null,
     pastlife:'sealed',affinity:'none',boons:new Set(),
     missions:new Set(),companions:new Set(),
     home:null,items:new Set(),money:null,allies:new Set(),
-    axes:{power:0,control:0,knowledge:0},elements:{},avatarState:'none',energy:false
+    axes:{power:1,control:1,knowledge:1},elements:{},avatarState:'none',energy:false
   });
   Object.keys(state).filter(k=>k.startsWith('spec_')).forEach(k=>delete state[k]);
+}
+function loadPreset(id){
+  const p=PRESETS[id]; if(!p) return;
+  resetState();
+  state.incarnation=p.incarnation;
+  Object.assign(state.world,p.world||{});
+  state.identity=p.identity||null;
+  state.pastlife=p.pastlife||'sealed';
+  state.affinity=p.affinity||'none';
+  state.boons=new Set(p.boons||[]);
+  state.companions=new Set(p.companions||[]);
+  state.missions=new Set(p.missions||[]);
+  state.home=p.home||null;
+  state.items=new Set(p.items||[]);
+  state.money=p.money||null;
+  state.allies=new Set(p.allies||[]);
+  (p.specs||[]).forEach(sp=>state['spec_'+sp]=true);
+  state.elements=Object.assign({},p.elements||{});
+  state.avatarState=p.avatarState||'none';
+  state.energy=!!p.energy;
+  state.axes=Object.assign({power:1,control:1,knowledge:1},p.axes||{});
+  purgeForbidden();
+  applyTheme(nativeEl());
+  buildElements(); buildSpecs();
+  render(); show(TABS.findIndex(t=>t.id==='incarnation'));
+}
+$('reset').addEventListener('click',()=>{
+  resetState();
   applyTheme('none');
   buildElements(); buildSpecs();
   render(); show(0);
 });
+let pendingPreset=null;
+function openPresetModal(id){
+  const p=PRESETS[id]; if(!p) return; pendingPreset=id;
+  const el=DATA.incarnations.find(i=>i.id===p.incarnation).el;
+  $('pmEmblem').className='modal-emblem n-'+el;
+  $('pmEmblem').innerHTML=`<svg viewBox="0 0 100 100"><use href="#em-${el}"/></svg>`;
+  $('pmTitle').textContent='Begin as '+p.name+'?';
+  $('pmDesc').textContent=p.concept;
+  $('presetModal').hidden=false;
+}
+function closePresetModal(){ $('presetModal').hidden=true; pendingPreset=null; }
+$('pmLoad').addEventListener('click',()=>{ if(pendingPreset) loadPreset(pendingPreset); closePresetModal(); });
+$('pmCancel').addEventListener('click',closePresetModal);
+$('presetModal').addEventListener('click',e=>{ if(e.target.id==='presetModal') closePresetModal(); });
 
 /* ---------- init ---------- */
 buildTabs();
